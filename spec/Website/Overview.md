@@ -28,8 +28,8 @@ Twitter/HN link → Landing Page
 
 - **Monorepo**: Same repo as `@semant/core` and `@semant/react`, using npm workspaces
 - **Website directory**: `website/` at repo root, added to workspaces
-- **Framework**: Vite + React for Landing; Nextra or Fumadocs (MDX-based) for Docs
-- **Deployment**: Vercel — Landing at root, Docs at `/docs`
+- **Framework**: Vite + React + React Router for both Landing and Docs (single SPA)
+- **Deployment**: GitHub Pages via GitHub Actions (auto-deploys on push to main)
 - **No Turborepo** — npm workspaces is sufficient at current scale (see ADR-001)
 - **No `@semant/doc-components`** — interactive components live in `website/` (see ADR-001)
 
@@ -40,24 +40,31 @@ semant/
 ├── packages/core/
 ├── packages/react/
 ├── examples/restaurant-booking/
-├── website/                    ← Vite + React
+├── .github/workflows/deploy.yml ← GitHub Pages CI/CD
+├── website/                     ← Vite + React + React Router
 │   ├── index.html
 │   ├── package.json
-│   ├── vite.config.ts
+│   ├── vite.config.ts           ← base: "/Semant/" for GitHub Pages
 │   └── src/
 │       ├── main.tsx
-│       ├── App.tsx             ← 3-screen landing shell
-│       ├── index.css           ← Design tokens as CSS vars
-│       └── components/demo/
-│           ├── DemoScene.tsx    ← Tab bar + 3-column layout + animation
-│           ├── AIView.tsx       ← toPlainText() with syntax coloring
-│           ├── AgentConsole.tsx  ← Terminal-style command log
-│           ├── CommandTerminal.tsx ← Input bar + agent typing effect
-│           ├── TokenCounter.tsx
-│           ├── executionLog.ts  ← Shared log between terminal + console
-│           └── scenes/
-│               └── BookingScene.tsx ← Booking.com demo
-└── package.json                ← workspaces includes "website"
+│       ├── App.tsx              ← BrowserRouter with Landing + Docs routes
+│       ├── index.css            ← Design tokens as CSS vars
+│       ├── pages/
+│       │   ├── Landing.tsx      ← 3-screen landing (nav + hero + demo + CTA)
+│       │   └── docs/            ← 5 MVP doc pages (TSX, not MDX)
+│       │       ├── DocsHome.tsx, Why.tsx, QuickStart.tsx
+│       │       ├── WrapComponent.tsx, ApiReference.tsx
+│       └── components/
+│           ├── demo/            ← Demo scene infrastructure
+│           │   ├── DemoScene.tsx, AIView.tsx, AgentConsole.tsx
+│           │   ├── CommandTerminal.tsx, TokenCounter.tsx, executionLog.ts
+│           │   └── scenes/      ← 4 demo scenes
+│           │       ├── BookingScene.tsx, MediumScene.tsx
+│           │       ├── MapsScene.tsx, ShopifyScene.tsx
+│           └── docs/            ← Docs layout components
+│               ├── DocsLayout.tsx, Sidebar.tsx
+│               ├── PrincipleCallout.tsx, CodeBlock.tsx
+└── package.json                 ← workspaces includes "website"
 ```
 
 ## MVP Scope
@@ -80,11 +87,12 @@ Deferred to Phase 2: Core Concepts (x4), remaining Guides (x4), Why This Way (x4
 
 ## Execution Phases
 
-### Phase 1: MVP Launch
+### Phase 1: MVP Launch ✓
 - Complete `@semant/core` and `@semant/react` API surface
 - Landing page: Hero + Demo (4 scenes) + CTA
-- Docs: 5 pages with live playground
-- Deploy to Vercel
+- Docs: 5 pages (Home, Why, Quick Start, Wrap Component, API Reference)
+- Dogfooding: every page has `window.__semant` with semantic content
+- Deploy to GitHub Pages via Actions
 
 ### Phase 2: Content Expansion
 - Landing: add Token Economics, Developer Preview, Output Formats screens
@@ -109,10 +117,9 @@ Demo scenes lazy-load: only the active tab loads, others preload in background.
 ## MVP Delivery Checklist
 
 ```
-semant.dev
-  ✓ Landing: Hero (component collage + flip)
-  ✓ Landing: Demo (4 scenes, dual view, terminal, token counter)
-  ✓ Landing: CTA (manifesto + npm install + links)
-  ✓ Docs: Home, Why, Quick Start, Wrap Guide, API Reference
-  ✓ Deployed on Vercel
+waynewangyuxuan.github.io/Semant/
+  ✓ Landing: Nav bar + Hero + Demo (4 scenes, 3-column, agent animation) + CTA
+  ✓ Docs: Home (mini demo), Why, Quick Start, Wrap Component, API Reference
+  ✓ Dogfooding: every page has window.__semant with semantic content
+  ✓ Deployed on GitHub Pages via Actions (auto-deploy on push)
 ```

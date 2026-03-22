@@ -61,27 +61,35 @@ Readers experience semant on the home page before navigating anywhere.
 
 ## Tech Stack
 
-- **Framework:** Nextra (Next.js docs) or Fumadocs — both support MDX for embedding React components
-- **Editor:** CodeMirror 6 or Sandpack for Live Playground (not Monaco — too heavy at ~2MB)
-- **Deployment:** Vercel, under `/docs` path of semant.dev
-- **Search:** Built-in framework search (Nextra/Fumadocs provide this)
+- **Framework:** Vite + React + React Router (single SPA, same build as landing page)
+- **Pages:** TSX components (not MDX) — keeps the build simple, interactive elements are native React
+- **Deployment:** GitHub Pages via GitHub Actions, 404.html fallback for SPA routing
+- **Editor:** Phase 2 — CodeMirror 6 or Sandpack for Live Playground
+
+## Dogfooding
+
+Every docs page registers its content as semantic nodes via `SemanticInfo`:
+- Page title, summary, sections, keywords, design principles
+- `window.__semant.getState()` returns a rich description of what the page is about
+- This is semant eating its own dogfood for GEO/SEO — the docs themselves are AI-readable
+
+DocsLayout wraps all pages in `SemanticProvider` + `SemanticHead` + `SemanticBridge`.
 
 ## Directory Structure (MVP)
 
 ```
-website/
-├── src/                        ← Landing page (Vite + React)
-└── docs/
-    ├── content/
-    │   ├── index.mdx           ← Home (mini demo)
-    │   ├── why.mdx             ← Why semant
-    │   ├── quickstart.mdx      ← Quick Start
-    │   └── guides/
-    │       └── wrap-component.mdx
-    ├── reference/
-    │   └── api.mdx             ← API Reference
-    └── components/
-        ├── LivePlayground.tsx
-        ├── CommandTerminal.tsx
-        └── PrincipleCallout.tsx
+website/src/
+├── pages/
+│   ├── Landing.tsx
+│   └── docs/
+│       ├── DocsHome.tsx         ← Mini demo + buttons
+│       ├── Why.tsx              ← DOM vs semant comparison
+│       ├── QuickStart.tsx       ← 5-step guide
+│       ├── WrapComponent.tsx    ← useSemantic() tutorial
+│       └── ApiReference.tsx     ← All exports + types
+└── components/docs/
+    ├── DocsLayout.tsx           ← Sidebar + content + SemanticProvider
+    ├── Sidebar.tsx              ← Section navigation
+    ├── PrincipleCallout.tsx     ← Design principle box
+    └── CodeBlock.tsx            ← Styled code block
 ```
