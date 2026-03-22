@@ -3,10 +3,12 @@ import { useExecutionLog } from "./executionLog";
 
 export function AgentConsole() {
   const log = useExecutionLog();
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+    }
   }, [log]);
 
   return (
@@ -27,7 +29,7 @@ export function AgentConsole() {
       </div>
 
       {/* Log entries */}
-      <div style={{ flex: 1, overflow: "auto", padding: "8px 12px" }}>
+      <div ref={scrollContainerRef} style={{ flex: 1, overflow: "auto", padding: "8px 12px" }}>
         {log.length === 0 && (
           <div style={{ color: "var(--a-text-secondary)", fontSize: 11, padding: "12px 4px", lineHeight: 1.6 }}>
             <div style={{ marginBottom: 8 }}>Waiting for agent...</div>
@@ -55,7 +57,6 @@ export function AgentConsole() {
             </div>
           </div>
         ))}
-        <div ref={bottomRef} />
       </div>
     </div>
   );

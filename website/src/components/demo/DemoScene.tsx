@@ -105,10 +105,6 @@ export function DemoScene() {
     return () => { cancelledRef.current = true; };
   }, [activeIdx]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleUserInteract = useCallback(() => {
-    cancelledRef.current = true;
-  }, []);
-
   const handleTabSwitch = useCallback((idx: number) => {
     cancelledRef.current = true;
     setActiveIdx(idx);
@@ -153,8 +149,6 @@ export function DemoScene() {
       <SemanticProvider title={scene.title} description={scene.description}>
         <div
           style={{ display: "flex", minHeight: 480 }}
-          onClick={handleUserInteract}
-          onKeyDown={handleUserInteract}
         >
           {/* Human View */}
           <div
