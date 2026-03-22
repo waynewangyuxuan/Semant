@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useSemanticPage, toPlainText } from "@semant/react";
-import { useExecutionLog } from "./executionLog";
 
 export function AIView() {
   const page = useSemanticPage();
   const text = toPlainText(page);
-  const log = useExecutionLog();
 
   // Track previous text to detect changed lines
   const [prevText, setPrevText] = useState(text);
@@ -68,32 +66,6 @@ export function AIView() {
         ))}
       </div>
 
-      {/* Execution log (inline, below the text) */}
-      {log.length > 0 && (
-        <div style={{ marginTop: 16, paddingTop: 12, borderTop: "1px dashed var(--a-border)" }}>
-          <div style={{ fontSize: 11, color: "var(--a-text-secondary)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>
-            Agent Actions
-          </div>
-          {log.slice(-5).map((entry, i) => (
-            <div
-              key={entry.timestamp + i}
-              style={{
-                marginBottom: 4,
-                padding: "3px 8px",
-                borderRadius: 3,
-                borderLeft: `3px solid ${entry.ok ? "#4ade80" : "#f87171"}`,
-                background: entry.ok ? "rgba(74, 222, 128, 0.06)" : "rgba(248, 113, 113, 0.06)",
-              }}
-            >
-              <span style={{ color: "var(--a-text-secondary)" }}>{">"} </span>
-              <span style={{ color: "var(--a-text)" }}>{entry.command}</span>
-              <span style={{ color: entry.ok ? "#4ade80" : "#f87171", marginLeft: 8, fontSize: 11 }}>
-                {entry.ok ? "✓" : "✗"} {entry.message}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

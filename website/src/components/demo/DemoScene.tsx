@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { SemanticProvider } from "@semant/react";
 import { BookingScene } from "./scenes/BookingScene";
 import { AIView } from "./AIView";
+import { AgentConsole } from "./AgentConsole";
 import { CommandTerminal, type TerminalHandle } from "./CommandTerminal";
 import { TokenCounter } from "./TokenCounter";
 
@@ -156,9 +157,21 @@ export function DemoScene() {
               flex: 1,
               background: "var(--a-bg)",
               padding: 24,
+              borderRight: "1px solid var(--a-border)",
             }}
           >
             <AIView />
+          </div>
+
+          {/* Agent Console */}
+          <div
+            style={{
+              width: 280,
+              flexShrink: 0,
+              background: "#111113",
+            }}
+          >
+            <AgentConsole />
           </div>
         </div>
 
