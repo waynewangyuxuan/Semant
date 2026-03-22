@@ -14,7 +14,8 @@ export interface SemanticBridgeProps {
  * 1. Renders a hidden DOM node with plain-text semantic state (for browser agents reading DOM)
  * 2. Exposes window[globalName] with getState() and execute() (for agents running JS)
  *
- * Both update automatically when any semantic node changes.
+ * execute() returns a Promise that resolves with the updated state
+ * after React has re-rendered, so agents can: await execute → read new state in one step.
  */
 export function SemanticBridge({
   nodeId = "semantic-state",
@@ -27,14 +28,31 @@ export function SemanticBridge({
   // Expose global JS API
   useEffect(() => {
     const api = {
-      getState: () => toPlainText(page),
-      execute: (command: string) => store.execute(command),
+      getState: () => toPlainText(store.getSnapshot()),
+      execute: (command: string): Promise<{ ok: boolean; message: string; state: string }> => {
+        const result = store.execute(command);
+        if (!result.ok) {
+          return Promise.resolve({ ...result, state: toPlainText(store.getSnapshot()) });
+        }
+        // Wait for React to re-render and store to reflect the new state
+        return new Promise((resolve) => {
+          const timeout = setTimeout(() => {
+            unsub();
+            resolve({ ...result, state: toPlainText(store.getSnapshot()) });
+          }, 100);
+          const unsub = store.subscribe(() => {
+            clearTimeout(timeout);
+            unsub();
+            resolve({ ...result, state: toPlainText(store.getSnapshot()) });
+          });
+        });
+      },
     };
     (window as any)[globalName] = api;
     return () => {
       delete (window as any)[globalName];
     };
-  }, [page, store, globalName]);
+  }, [store, globalName]);
 
   return (
     <div

@@ -10,6 +10,12 @@ export interface SemanticTextInputProps {
   type?: "text" | "email" | "tel" | "url" | "number";
   description?: string;
   className?: string;
+  /** Render prop for full custom rendering */
+  children?: (props: {
+    value: string;
+    onChange: (value: string) => void;
+    placeholder?: string;
+  }) => React.ReactNode;
 }
 
 export function SemanticTextInput({
@@ -21,6 +27,7 @@ export function SemanticTextInput({
   type = "text",
   description,
   className,
+  children,
 }: SemanticTextInputProps) {
   useSemantic({
     role: "Field",
@@ -36,6 +43,10 @@ export function SemanticTextInput({
       },
     ],
   });
+
+  if (children) {
+    return <>{children({ value, onChange, placeholder })}</>;
+  }
 
   return (
     <div className={className}>

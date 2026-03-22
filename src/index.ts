@@ -4,11 +4,13 @@ export {
   useSemantic,
   useSemanticPage,
   useSemanticStore,
+  field,
 } from "./core";
 
 export type {
   SemanticProviderProps,
   UseSemanticOptions,
+  SemanticFieldType,
   SemanticField,
   SemanticNode,
   SemanticPage,

@@ -1,7 +1,7 @@
 import React, {
   createContext,
   useContext,
-  useCallback,
+  useId,
   useRef,
   useSyncExternalStore,
   type ReactNode,
@@ -9,28 +9,42 @@ import React, {
 
 // ── Types ──
 
-export interface SemanticField {
+/** Built-in types for autocomplete; any string is accepted for custom types */
+export type SemanticFieldType =
+  | "select" | "date" | "time" | "text" | "number" | "toggle" | "action"
+  | (string & {});
+
+export interface SemanticField<T = unknown> {
   /** Unique key for this field, e.g. "party_size" */
   key: string;
   /** Human-readable label */
   label: string;
-  /** Component type hint */
-  type: "select" | "date" | "time" | "text" | "number" | "toggle" | "action";
+  /** Component type hint — use built-in types or any custom string */
+  type: SemanticFieldType;
   /** Current value (serializable) */
-  value: unknown;
+  value: T;
   /** Available options for selects/time slots */
-  options?: unknown[];
+  options?: T[];
   /** Constraints */
-  min?: unknown;
-  max?: unknown;
+  min?: T;
+  max?: T;
   /** Whether the field is currently enabled */
   enabled?: boolean;
   /** Extra description for AI */
   description?: string;
+  /** Structured hint for custom types, e.g. { inputMode: "color", format: "hex" } */
+  typeHint?: Record<string, unknown>;
+  /** Optional validation. Return an error string if invalid, or null/undefined if valid. */
+  validate?: (value: T) => string | null | undefined;
   /** Setter — called by the command interpreter */
-  set?: (value: unknown) => void;
+  set?: (value: T) => void;
   /** For actions — the execute function */
   execute?: () => void;
+}
+
+/** Helper to create a typed field with inference */
+export function field<T>(def: SemanticField<T>): SemanticField {
+  return def as SemanticField;
 }
 
 export interface SemanticNode {
@@ -59,6 +73,41 @@ export interface SemanticPage {
   nodes: SemanticNode[];
 }
 
+// ── Shallow comparison (skip function refs, compare data only) ──
+
+function shallowEqualField(a: SemanticField, b: SemanticField): boolean {
+  if (a.key !== b.key || a.label !== b.label || a.type !== b.type ||
+      a.value !== b.value || a.enabled !== b.enabled ||
+      a.description !== b.description ||
+      a.min !== b.min || a.max !== b.max) return false;
+  if (a.options !== b.options) {
+    if (!a.options || !b.options || a.options.length !== b.options.length) return false;
+    for (let i = 0; i < a.options.length; i++) {
+      if (a.options[i] !== b.options[i]) return false;
+    }
+  }
+  return true;
+}
+
+function shallowEqualNode(a: SemanticNode, b: SemanticNode): boolean {
+  if (a.role !== b.role || a.title !== b.title ||
+      a.description !== b.description || a.order !== b.order) return false;
+  if (a.fields.length !== b.fields.length) return false;
+  for (let i = 0; i < a.fields.length; i++) {
+    if (!shallowEqualField(a.fields[i], b.fields[i])) return false;
+  }
+  if (a.meta !== b.meta) {
+    if (!a.meta || !b.meta) return false;
+    const aKeys = Object.keys(a.meta);
+    const bKeys = Object.keys(b.meta);
+    if (aKeys.length !== bKeys.length) return false;
+    for (const k of aKeys) {
+      if (a.meta[k] !== b.meta[k]) return false;
+    }
+  }
+  return true;
+}
+
 // ── Store (external store pattern for zero-rerender overhead) ──
 
 type Listener = () => void;
@@ -69,6 +118,8 @@ class SemanticStore {
   private pageTitle = "";
   private pageDescription = "";
   private version = 0;
+  private snapshotCache: SemanticPage | null = null;
+  private snapshotVersion = -1;
 
   setPage(title: string, description?: string) {
     this.pageTitle = title;
@@ -76,6 +127,12 @@ class SemanticStore {
   }
 
   register(node: SemanticNode) {
+    const existing = this.nodes.get(node.id);
+    if (existing && shallowEqualNode(existing, node)) {
+      // Data unchanged — silently update function refs without notifying
+      this.nodes.set(node.id, node);
+      return;
+    }
     this.nodes.set(node.id, node);
     this.version++;
     this.emit();
@@ -97,14 +154,19 @@ class SemanticStore {
   }
 
   getSnapshot = (): SemanticPage => {
+    if (this.snapshotVersion === this.version && this.snapshotCache) {
+      return this.snapshotCache;
+    }
     const sorted = Array.from(this.nodes.values()).sort(
       (a, b) => (a.order ?? 0) - (b.order ?? 0)
     );
-    return {
+    this.snapshotCache = {
       title: this.pageTitle,
       description: this.pageDescription,
       nodes: sorted,
     };
+    this.snapshotVersion = this.version;
+    return this.snapshotCache;
   };
 
   subscribe = (listener: Listener): (() => void) => {
@@ -126,6 +188,12 @@ class SemanticStore {
           // Try to parse as number
           const numVal = Number(rawValue);
           const value = Number.isNaN(numVal) ? rawValue : numVal;
+          if (field.validate) {
+            const error = field.validate(value);
+            if (error) {
+              return { ok: false, message: `validation failed for ${key}: ${error}` };
+            }
+          }
           field.set(value);
           return { ok: true, message: `set ${key} = ${rawValue}` };
         }
@@ -190,8 +258,6 @@ export function SemanticProvider({
 
 // ── Hook ──
 
-let idCounter = 0;
-
 export interface UseSemanticOptions {
   id?: string;
   role: string;
@@ -210,7 +276,8 @@ export function useSemantic(options: UseSemanticOptions) {
   const ctx = useContext(SemanticContext);
   if (!ctx) throw new Error("useSemantic must be used within <SemanticProvider>");
 
-  const idRef = useRef(options.id ?? `sem_${++idCounter}`);
+  const reactId = useId();
+  const idRef = useRef(options.id ?? `sem${reactId}`);
   const id = idRef.current;
 
   // Register/update on every render (fields may have changed)
@@ -223,9 +290,14 @@ export function useSemantic(options: UseSemanticOptions) {
     fields: options.fields,
     order: options.order,
   };
-  ctx.store.register(node);
+  // Register after every render (effect, not render phase) to avoid
+  // triggering useSyncExternalStore updates in sibling components.
+  // The shallow compare in register() skips emit when data is unchanged.
+  React.useEffect(() => {
+    ctx.store.register(node);
+  });
 
-  // Unregister on unmount
+  // Unregister only on real unmount
   React.useEffect(() => {
     return () => ctx.store.unregister(id);
   }, [ctx.store, id]);

@@ -4,7 +4,7 @@
 
 Build pages that are human-beautiful and machine-operable. Every component knows how to render itself *and* how to explain itself — as plain text, llms.txt, or JSON-LD. No separate metadata layer. No reverse engineering. One source of truth.
 
-[Live Demo](https://semant-demo.vercel.app) · [npm](https://www.npmjs.com/package/semant)
+[npm](https://www.npmjs.com/package/semant)
 
 ---
 
@@ -59,8 +59,8 @@ import {
   SemanticSelect,
   SemanticAction,
   SemanticInfo,
-  useSemanticPage,
-  toPlainText,
+  SemanticHead,
+  SemanticBridge,
 } from "semant";
 
 function App() {
@@ -68,13 +68,16 @@ function App() {
 
   return (
     <SemanticProvider title="Restaurant Booking" description="Book a table at Nōri">
+      <SemanticHead baseUrl="https://mysite.com" />
+      <SemanticBridge />
+
       <SemanticInfo
         role="restaurant"
         title="Nōri Omakase"
         meta={{ cuisine: "Japanese", rating: 4.7, price: "$$$" }}
       >
         <h1>Nōri Omakase</h1>
-        <p>★★★★½ · Japanese · $$$</p>
+        <p>Japanese · $$$</p>
       </SemanticInfo>
 
       <SemanticSelect
@@ -92,42 +95,57 @@ function App() {
         enabled={size > 0}
         requires={["party_size", "date", "time"]}
       />
-
-      <AIView />
     </SemanticProvider>
   );
 }
-
-function AIView() {
-  const page = useSemanticPage();
-  return <pre>{toPlainText(page)}</pre>;
-}
 ```
 
-The `<pre>` above renders something like:
+Two extra lines (`<SemanticHead>` and `<SemanticBridge>`) and your page is now AI-readable through four channels simultaneously.
 
-```
-# Restaurant Booking
-> Book a table at Nōri
+## How AI Reads Your Page
 
-[restaurant: Nōri Omakase]
-  cuisine: Japanese
-  rating: 4.7
-  price: $$$
+Semant exposes your page state through four channels. You don't need to pick — `<SemanticHead>` and `<SemanticBridge>` enable all of them at once.
 
-[Field: Party Size]
-  [Select: party_size] options: [1, 2, 3, 4, 5, 6] current: 2
+### 1. JSON-LD in `<head>` (search engines, AI Overview)
 
-[Action: Book Table]
-  [Action: submit_booking] enabled: true
-    Requires: party_size, date, time
+`<SemanticHead>` automatically injects a `<script type="application/ld+json">` tag with Schema.org structured data. Google, Bing, and AI Overview can parse it. Updates automatically when state changes.
 
-## Commands
-  set party_size <1|2|3|4|5|6>
-  submit_booking
+### 2. llms.txt (AI crawlers)
+
+Use `toLlmsTxt()` to generate [llms.txt](https://llmstxt.org)-compatible output and serve it at `yoursite.com/llms.txt`. Perplexity, Claude, and 600+ sites already use this convention.
+
+```ts
+// In your server route / build script
+import { toLlmsTxt } from "semant";
+const content = toLlmsTxt(page, { baseUrl: "https://mysite.com" });
+// Serve as /llms.txt
 ```
 
-AI reads that. Sends `set party_size 4`. Done.
+### 3. Hidden DOM node (browser agents)
+
+`<SemanticBridge>` renders a hidden `<div id="semantic-state">` with a plain-text description of the page. Browser agents (Claude in Chrome, Operator, etc.) can read it directly from the DOM instead of parsing the entire page.
+
+### 4. Global JS API (the most powerful path)
+
+`<SemanticBridge>` also exposes `window.__semant` — a full read/write API:
+
+```javascript
+// Read the current page state
+__semant.getState()
+// Returns plain text like:
+// [Select: party_size] options: [1, 2, 3, 4, 5, 6] current: 2
+// [Action: submit_booking] enabled: true
+
+// Execute a command and get the updated state in one step
+const { ok, state } = await __semant.execute("set party_size 4")
+// ok: true
+// state: "...party_size current: 4..."
+
+// Trigger an action
+await __semant.execute("submit_booking")
+```
+
+`execute()` returns a Promise that resolves after React has re-rendered, so the `state` in the response is always up-to-date.
 
 ## API
 
@@ -135,10 +153,18 @@ AI reads that. Sends `set party_size 4`. Done.
 
 | Export | Description |
 |--------|-------------|
-| `SemanticProvider` | Wrap your app. Sets page title/description. Collects all semantic nodes. |
-| `useSemantic(options)` | Register any component as a semantic node. This is the escape hatch — use it to make *your own* components self-describing. |
+| `SemanticProvider` | Wrap your app. Sets page title/description. |
+| `useSemantic(options)` | Register any component as a semantic node. The escape hatch for custom components. |
 | `useSemanticPage()` | Read the full semantic state. Re-renders on changes. |
-| `useSemanticStore()` | Get the store directly. Call `store.execute("set party_size 4")` to operate the page via text commands. |
+| `useSemanticStore()` | Get the store directly for executing commands. |
+| `field(def)` | Helper to create a typed field with TypeScript inference. |
+
+### AI Delivery
+
+| Export | Description |
+|--------|-------------|
+| `<SemanticHead>` | Injects JSON-LD `<script>` into `<head>`. Auto-updates. |
+| `<SemanticBridge>` | Hidden DOM node + `window.__semant` global API. |
 
 ### Output Renderers
 
@@ -162,7 +188,7 @@ These are optional — use them directly, or use `useSemantic` to make your own.
 | `SemanticInfo` | Static info block (restaurant details, product specs, etc.) |
 | `SemanticList` | List of items with metadata |
 
-Every component accepts a `children` render prop so you can use your own UI while keeping the semantic layer.
+All components support custom rendering via `children` render prop (except `SemanticAction` which uses a `render` prop, since `children` is used for button content).
 
 ## Make Your Own Components Semantic
 
@@ -179,7 +205,7 @@ function MyFancyColorPicker({ color, onChange }) {
       {
         key: "color",
         label: "Selected Color",
-        type: "select",
+        type: "color-picker",  // any string works, not limited to built-in types
         value: color,
         options: ["red", "blue", "green", "yellow"],
         set: (v) => onChange(v),
@@ -193,41 +219,6 @@ function MyFancyColorPicker({ color, onChange }) {
 ```
 
 Three lines of integration. Your component is now self-describing and AI-operable.
-
-## Output Formats
-
-### Plain Text (for AI agents)
-```
-[Field: Color Picker]
-  [Select: color] options: [red, blue, green, yellow] current: blue
-
-## Commands
-  set color <red|blue|green|yellow>
-```
-
-### llms.txt (for crawlers)
-```markdown
-# My App
-> A beautiful app with a color picker
-
-## Color Picker
-### Fields
-- **Selected Color** (`color`): red, blue, green, yellow — current: blue
-### Actions
-- `apply_color`: Apply the selected color
-```
-
-### JSON-LD (for search engines)
-```json
-{
-  "@context": "https://schema.org",
-  "@type": "WebPage",
-  "name": "My App",
-  "mainEntity": [...]
-}
-```
-
-One source of truth. Three outputs. Zero extra maintenance.
 
 ## Philosophy
 

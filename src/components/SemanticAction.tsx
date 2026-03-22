@@ -11,6 +11,12 @@ export interface SemanticActionProps {
   description?: string;
   className?: string;
   children?: React.ReactNode;
+  /** Render prop for full custom rendering */
+  render?: (props: {
+    execute: () => void;
+    enabled: boolean;
+    label: string;
+  }) => React.ReactNode;
 }
 
 export function SemanticAction({
@@ -22,6 +28,7 @@ export function SemanticAction({
   description,
   className,
   children,
+  render,
 }: SemanticActionProps) {
   useSemantic({
     role: "Action",
@@ -42,6 +49,10 @@ export function SemanticAction({
       },
     ],
   });
+
+  if (render) {
+    return <>{render({ execute: onExecute, enabled, label })}</>;
+  }
 
   return (
     <button
