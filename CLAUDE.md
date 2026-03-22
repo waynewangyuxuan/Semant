@@ -19,6 +19,7 @@ v0.1 — protocol design phase. The semantic protocol (how components describe t
 1. Read `spec/Meta.md` — project overview and navigation
 2. Read `spec/Core/Regulation.md` — development constraints
 3. Load task-specific context per `spec/Meta.md` Context Injection Guide
+4. For website tasks, read `spec/Website/Meta.md` for routing
 
 ## Quick Reference
 | Path | Content |
@@ -27,6 +28,8 @@ v0.1 — protocol design phase. The semantic protocol (how components describe t
 | `spec/Core/Product.md` | What semant is, core concepts, architecture |
 | `spec/Core/Technical.md` | Code organization and key patterns |
 | `spec/Core/Regulation.md` | Development constraints |
+| `spec/Website/` | Website spec: landing page, docs, design language |
+| `spec/Decisions/` | Architecture Decision Records |
 | `packages/core/src/` | Types, SemanticStore, output renderers — framework-agnostic core |
 | `packages/react/src/` | Provider, hooks, reference components — React bindings |
 | `examples/restaurant-booking/` | Full working example |

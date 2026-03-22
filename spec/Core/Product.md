@@ -69,6 +69,10 @@ We don't validate commands. If an agent sends an invalid value, the developer's 
 - Two delivery components (SemanticHead, SemanticBridge)
 - One example (restaurant-booking)
 
+## Website
+
+semant.dev is the project's online presence: a landing page (showcase + four interactive demo scenes) and developer documentation (interactive, journey-based). The website lives in the same monorepo under `website/`. It imports `@semant/react` directly, serving as both marketing and dogfooding. See `spec/Website/` for full specification and `spec/Decisions/ADR-001-website-scope.md` for MVP scoping.
+
 ## What We Explicitly Don't Do
 1. Auto-infer semantics from DOM — developers declare explicitly
 2. Manage state — we call the `set()` callback and let the framework handle the rest

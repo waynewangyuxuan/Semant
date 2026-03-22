@@ -37,3 +37,12 @@
 ## Doc Sync
 - If you change the public API surface (new exports, changed props), update README.md API tables.
 - If you change the command protocol in `SemanticStore.execute()`, update the README Commands section.
+
+## Website Development
+- Website code lives in `website/` at repo root, included in npm workspaces.
+- No Turborepo — npm workspaces only (see ADR-001).
+- Interactive doc components live inside `website/`, not a separate package.
+- Docs framework: Nextra or Fumadocs (MDX-based). Code editor: CodeMirror 6 or Sandpack (not Monaco).
+- Landing demo scenes must use `@semant/react` components — dogfooding is mandatory.
+- Design language: dual-face warm/cold system (see `spec/Website/DesignLanguage.md`).
+- Performance budgets: FCP < 1.5s (landing) / < 1.0s (docs), JS bundle < 200KB / 150KB gzip.
