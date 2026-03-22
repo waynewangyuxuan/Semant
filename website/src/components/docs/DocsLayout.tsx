@@ -77,7 +77,6 @@ export function DocsLayout() {
           style={{
             flex: 1,
             padding: "40px 48px",
-            maxWidth: 800,
             overflow: "auto",
           }}
         >
