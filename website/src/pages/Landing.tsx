@@ -7,7 +7,17 @@ export function Landing() {
     <SemanticProvider title="semant" description="The web that AI can operate">
       <SemanticHead />
       <SemanticBridge />
-      <SemanticInfo role="landing_page" title="semant" meta={{ tagline: "The web that AI can operate" }} />
+      <SemanticInfo
+        role="landing_page"
+        title="semant"
+        meta={{
+          tagline: "The web that AI can operate",
+          summary: "Semantic protocol for AI-readable, AI-operable web pages. Components that describe themselves — so AI can read and operate pages via text commands instead of screenshots or DOM parsing.",
+          features: ["Self-describing React components", "Plain text + JSON-LD + llms.txt output", "Text command protocol for AI agents", "Zero-dependency core, thin React adapter"],
+          demos: ["GEO/SEO (Medium article)", "Deep Research (Google Maps)", "Agentic Browsing (Booking.com)", "Structured Data (Shopify)"],
+          install: "npm install @semant/react",
+        }}
+      />
     <div style={{ minHeight: "100vh" }}>
       {/* Top Nav */}
       <nav

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { SemanticProvider, SemanticSelect, useSemanticPage, toPlainText } from "@semant/react";
+import { SemanticProvider, SemanticSelect, SemanticInfo, useSemanticPage, toPlainText } from "@semant/react";
 
 function MiniDemo() {
   const [size, setSize] = useState<number>(2);
@@ -72,6 +72,15 @@ function AIOutput() {
 export function DocsHome() {
   return (
     <div>
+      <SemanticInfo
+        role="page"
+        title="semant — Documentation Home"
+        meta={{
+          summary: "React components that describe themselves to AI. semant is a semantic protocol for AI-readable, AI-operable web pages.",
+          sections: ["Mini Demo", "Quick Start", "Why semant"],
+          keywords: ["semant", "semantic web", "AI", "React", "components", "protocol"],
+        }}
+      />
       <h1 className="heading" style={{ fontSize: 32, fontWeight: 700, marginBottom: 12 }}>
         semant
       </h1>

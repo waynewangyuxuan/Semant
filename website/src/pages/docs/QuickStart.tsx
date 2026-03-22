@@ -1,9 +1,20 @@
+import { SemanticInfo } from "@semant/react";
 import { PrincipleCallout } from "../../components/docs/PrincipleCallout";
 import { CodeBlock } from "../../components/docs/CodeBlock";
 
 export function QuickStart() {
   return (
     <div>
+      <SemanticInfo
+        role="page"
+        title="Quick Start"
+        meta={{
+          summary: "Get AI-readable, AI-operable React components in 5 minutes. Install @semant/react, wrap your app, add delivery components, use a semantic component, verify in DevTools.",
+          sections: ["Install", "Wrap your app", "Add delivery components", "Use a semantic component", "Verify"],
+          design_principle: "Mirror, Not Engine",
+          keywords: ["quick start", "tutorial", "installation", "SemanticProvider", "SemanticBridge", "window.__semant"],
+        }}
+      />
       <h1 className="heading" style={{ fontSize: 28, fontWeight: 700, marginBottom: 24 }}>
         Quick Start
       </h1>

@@ -1,3 +1,4 @@
+import { SemanticInfo } from "@semant/react";
 import { PrincipleCallout } from "../../components/docs/PrincipleCallout";
 import { CodeBlock } from "../../components/docs/CodeBlock";
 
@@ -27,6 +28,16 @@ const SEMANT_OUTPUT = `[Field: Party Size]
 export function Why() {
   return (
     <div>
+      <SemanticInfo
+        role="page"
+        title="Why semant"
+        meta={{
+          summary: "The web was designed for humans to see and AI to guess. semant adds a layer where components describe themselves — so AI can read and operate pages without screenshots or DOM parsing.",
+          sections: ["The Problem", "The Solution", "What semant is NOT"],
+          design_principle: "The Web's Missing Layer",
+          keywords: ["DOM parsing", "AI agents", "semantic web", "structured data", "GEO", "SEO"],
+        }}
+      />
       <h1 className="heading" style={{ fontSize: 28, fontWeight: 700, marginBottom: 24 }}>
         Why semant
       </h1>

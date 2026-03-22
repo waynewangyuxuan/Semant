@@ -1,9 +1,20 @@
+import { SemanticInfo } from "@semant/react";
 import { PrincipleCallout } from "../../components/docs/PrincipleCallout";
 import { CodeBlock } from "../../components/docs/CodeBlock";
 
 export function WrapComponent() {
   return (
     <div>
+      <SemanticInfo
+        role="page"
+        title="Wrap Your Own Component"
+        meta={{
+          summary: "Any React component can become semantic in 3 lines using useSemantic(). The hook registers your component in the semantic store — AI can then read its state and send commands to it.",
+          sections: ["Before: plain component", "After: semantic component", "What changed", "What AI sees", "Key concepts"],
+          design_principle: "Open Semantics",
+          keywords: ["useSemantic", "custom component", "wrap", "role", "fields", "constraints", "set callback"],
+        }}
+      />
       <h1 className="heading" style={{ fontSize: 28, fontWeight: 700, marginBottom: 24 }}>
         Wrap Your Own Component
       </h1>

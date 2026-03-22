@@ -1,3 +1,4 @@
+import { SemanticInfo } from "@semant/react";
 import { CodeBlock } from "../../components/docs/CodeBlock";
 
 const h3 = { fontSize: 16, fontWeight: 600 as const, marginBottom: 8, marginTop: 24 };
@@ -6,6 +7,22 @@ const desc = { fontSize: 14, color: "var(--h-text-secondary)" as const, marginBo
 export function ApiReference() {
   return (
     <div>
+      <SemanticInfo
+        role="page"
+        title="API Reference"
+        meta={{
+          summary: "Complete API reference for @semant/react and @semant/core. All public exports with type signatures.",
+          sections: ["Types", "Store", "Output Renderers", "React Bindings", "Reference Components", "Delivery Components"],
+          exports: [
+            "SemanticField", "SemanticNode", "SemanticPage", "SemanticStore",
+            "toPlainText", "toLlmsTxt", "toJsonLd", "toJsonLdScript",
+            "SemanticProvider", "useSemantic", "useSemanticPage", "useSemanticStore",
+            "SemanticSelect", "SemanticDatePicker", "SemanticTextInput", "SemanticAction",
+            "SemanticInfo", "SemanticList", "SemanticHead", "SemanticBridge",
+          ],
+          keywords: ["API", "reference", "types", "hooks", "components", "exports"],
+        }}
+      />
       <h1 className="heading" style={{ fontSize: 28, fontWeight: 700, marginBottom: 8 }}>
         API Reference
       </h1>
