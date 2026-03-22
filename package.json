@@ -1,0 +1,57 @@
+{
+  "name": "semant",
+  "version": "0.1.0",
+  "description": "React components that describe themselves to AI. Build pages that are human-beautiful and machine-operable.",
+  "keywords": [
+    "semantic",
+    "ai",
+    "llm",
+    "seo",
+    "geo",
+    "llms-txt",
+    "react",
+    "accessibility",
+    "agent",
+    "web-components"
+  ],
+  "author": "Wayne",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/semant-dev/semant"
+  },
+  "homepage": "https://github.com/semant-dev/semant",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "prepublishOnly": "npm run build",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "devDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "@types/react": "^18.3.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0"
+  }
+}
