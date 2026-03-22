@@ -1,0 +1,58 @@
+/* === Design Tokens (spec/Website/DesignLanguage.md) === */
+:root {
+  /* Human side (warm) */
+  --h-bg: #fafaf8;
+  --h-text: #1a1a1a;
+  --h-text-secondary: #6b6b6b;
+  --h-accent: #2d6a4f;
+  --h-accent-hover: #245a42;
+  --h-border: #e5e5e3;
+  --h-card-bg: #ffffff;
+  --h-radius: 12px;
+
+  /* AI side (cold) */
+  --a-bg: #0c0c0e;
+  --a-text: #e8e6e3;
+  --a-text-secondary: #8a8a8a;
+  --a-accent: #c4f067;
+  --a-border: #2a2a2e;
+  --a-card-bg: #161618;
+  --a-radius: 6px;
+
+  /* Booking.com brand */
+  --booking-blue: #003580;
+  --booking-blue-hover: #00264d;
+  --booking-yellow: #febb02;
+
+  /* Typography */
+  --font-heading: "Fraunces", serif;
+  --font-body: "DM Sans", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+/* === Reset === */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--h-text);
+  background: var(--h-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+}
+
+/* === Utility === */
+.mono {
+  font-family: var(--font-mono);
+}
+
+.heading {
+  font-family: var(--font-heading);
+}

@@ -21,7 +21,8 @@
   "homepage": "https://github.com/semant-dev/semant",
   "workspaces": [
     "packages/*",
-    "examples/*"
+    "examples/*",
+    "website"
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
