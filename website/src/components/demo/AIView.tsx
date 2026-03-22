@@ -56,75 +56,83 @@ export function AIView() {
   );
 
   return (
-    <div style={{ fontFamily: "var(--font-mono)", fontSize: 12 }}>
+    <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, display: "flex", flexDirection: "column", height: "100%" }}>
       {/* Header */}
       <div
         style={{
           fontSize: 11,
           color: "var(--a-text-secondary)",
-          marginBottom: 16,
+          padding: "16px 24px 8px",
           textTransform: "uppercase",
           letterSpacing: 1,
+          flexShrink: 0,
         }}
       >
         AI View — Semantic State
       </div>
 
-      {/* ── STATE SECTION ── */}
-      <div style={{ marginBottom: 20 }}>
+      {/* ── SCROLLABLE STATE + LOG ── */}
+      <div style={{ flex: 1, overflow: "auto", padding: "8px 24px" }}>
         {stateNodes.map((node) => (
           <NodeBlock key={node.id} node={node} changedKeys={changedKeys} />
         ))}
-      </div>
 
-      {/* ── EXECUTION LOG (inside state panel) ── */}
-      {log.length > 0 && (
-        <div style={{ marginBottom: 16 }}>
-          <div
-            style={{
-              fontSize: 11,
-              color: "var(--a-text-secondary)",
-              textTransform: "uppercase",
-              letterSpacing: 1,
-              marginBottom: 8,
-              paddingTop: 10,
-              borderTop: "1px dashed var(--a-border)",
-            }}
-          >
-            Execution Log
-          </div>
-          {log.slice(-5).map((entry, i) => (
+        {/* Execution Log */}
+        {log.length > 0 && (
+          <div style={{ marginTop: 12 }}>
             <div
-              key={entry.timestamp + i}
               style={{
-                marginBottom: 6,
-                padding: "4px 8px",
-                borderRadius: 4,
-                background: entry.ok ? "rgba(74, 222, 128, 0.08)" : "rgba(248, 113, 113, 0.08)",
-                borderLeft: `3px solid ${entry.ok ? "#4ade80" : "#f87171"}`,
+                fontSize: 11,
+                color: "var(--a-text-secondary)",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+                marginBottom: 8,
+                paddingTop: 10,
+                borderTop: "1px dashed var(--a-border)",
               }}
             >
-              <div>
-                <span style={{ color: "var(--a-text-secondary)" }}>{">"} </span>
-                <span style={{ color: "var(--a-text)" }}>{entry.command}</span>
-              </div>
+              Execution Log
+            </div>
+            {log.slice(-5).map((entry, i) => (
               <div
+                key={entry.timestamp + i}
                 style={{
-                  color: entry.ok ? "#4ade80" : "#f87171",
-                  fontSize: 11,
-                  paddingLeft: 14,
+                  marginBottom: 6,
+                  padding: "4px 8px",
+                  borderRadius: 4,
+                  background: entry.ok ? "rgba(74, 222, 128, 0.08)" : "rgba(248, 113, 113, 0.08)",
+                  borderLeft: `3px solid ${entry.ok ? "#4ade80" : "#f87171"}`,
                 }}
               >
-                {entry.ok ? "✓" : "✗"} {entry.message}
+                <div>
+                  <span style={{ color: "var(--a-text-secondary)" }}>{">"} </span>
+                  <span style={{ color: "var(--a-text)" }}>{entry.command}</span>
+                </div>
+                <div
+                  style={{
+                    color: entry.ok ? "#4ade80" : "#f87171",
+                    fontSize: 11,
+                    paddingLeft: 14,
+                  }}
+                >
+                  {entry.ok ? "✓" : "✗"} {entry.message}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
 
-      {/* ── COMMANDS SECTION ── */}
+      {/* ── COMMANDS SECTION (pinned to bottom) ── */}
       {(settableFields.length > 0 || actions.length > 0) && (
-        <div>
+        <div
+          style={{
+            flexShrink: 0,
+            padding: "12px 24px 16px",
+            borderTop: "1px solid var(--a-border)",
+            background: "var(--a-bg)",
+          }}
+        >
           <div
             style={{
               fontSize: 11,
@@ -132,8 +140,6 @@ export function AIView() {
               textTransform: "uppercase",
               letterSpacing: 1,
               marginBottom: 8,
-              paddingTop: 12,
-              borderTop: "1px solid var(--a-border)",
             }}
           >
             Available Commands
