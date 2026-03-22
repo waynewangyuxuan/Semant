@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { useSemanticPage } from "@semant/react";
 import type { SemanticNode, SemanticField } from "@semant/react";
 import { useExecutionLog } from "./executionLog";
@@ -45,6 +45,44 @@ export function AIView() {
   }, []);
 
   const log = useExecutionLog();
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when state or log changes
+  const scrollToBottom = useCallback(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    }
+  }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [allFields, log, scrollToBottom]);
+
+  // Determine which command key was most recently executed (for highlight)
+  const lastExecuted = log.length > 0 ? log[log.length - 1] : null;
+  const lastCmdKey = useMemo(() => {
+    if (!lastExecuted) return null;
+    const cmd = lastExecuted.command.trim();
+    // "set <key> <value>" → highlight key
+    if (cmd.startsWith("set ")) {
+      const parts = cmd.split(/\s+/);
+      return parts[1] ?? null;
+    }
+    // action name directly
+    return cmd.split(/\s+/)[0] ?? null;
+  }, [lastExecuted]);
+
+  // Clear highlight after timeout
+  const [highlightedCmd, setHighlightedCmd] = useState<string | null>(null);
+  const cmdTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => {
+    if (lastCmdKey && lastExecuted) {
+      setHighlightedCmd(lastCmdKey);
+      if (cmdTimeoutRef.current) clearTimeout(cmdTimeoutRef.current);
+      cmdTimeoutRef.current = setTimeout(() => setHighlightedCmd(null), 1500);
+    }
+  }, [lastCmdKey, lastExecuted]);
+  useEffect(() => () => { if (cmdTimeoutRef.current) clearTimeout(cmdTimeoutRef.current); }, []);
 
   // Separate fields from actions, and extract semantic state vs commands
   const stateNodes = page.nodes.filter((n) => n.role !== "Action");
@@ -72,7 +110,7 @@ export function AIView() {
       </div>
 
       {/* ── SCROLLABLE STATE + LOG ── */}
-      <div style={{ flex: 1, overflow: "auto", padding: "8px 24px" }}>
+      <div ref={scrollRef} className="ai-view-scroll" style={{ flex: 1, overflow: "auto", padding: "8px 24px" }}>
         {stateNodes.map((node) => (
           <NodeBlock key={node.id} node={node} changedKeys={changedKeys} />
         ))}
@@ -145,23 +183,49 @@ export function AIView() {
             Available Commands
           </div>
 
-          {settableFields.map(({ field }) => (
-            <div key={field.key} style={{ marginBottom: 4, color: "var(--a-text)" }}>
-              <span style={{ color: "var(--a-text-secondary)" }}>set</span>{" "}
-              <span style={{ color: "var(--a-accent)" }}>{field.key}</span>{" "}
-              <span style={{ color: "var(--a-text-secondary)" }}>
-                {formatConstraintHint(field)}
-              </span>
-            </div>
-          ))}
+          {settableFields.map(({ field }) => {
+            const isActive = highlightedCmd === field.key;
+            return (
+              <div
+                key={field.key}
+                style={{
+                  marginBottom: 4,
+                  color: "var(--a-text)",
+                  padding: "2px 6px",
+                  borderRadius: 4,
+                  background: isActive ? "rgba(196, 240, 103, 0.15)" : "transparent",
+                  transition: "background 0.3s",
+                }}
+              >
+                <span style={{ color: "var(--a-text-secondary)" }}>set</span>{" "}
+                <span style={{ color: "var(--a-accent)", fontWeight: isActive ? 600 : 400 }}>{field.key}</span>{" "}
+                <span style={{ color: "var(--a-text-secondary)" }}>
+                  {formatConstraintHint(field)}
+                </span>
+                {isActive && <span style={{ color: "var(--a-accent)", marginLeft: 8 }}>◀</span>}
+              </div>
+            );
+          })}
 
           {actions.map((field) => {
             const enabled = field.constraints?.enabled !== false;
+            const isActive = highlightedCmd === field.key;
             return (
-              <div key={field.key} style={{ marginBottom: 4, color: "var(--a-text)" }}>
-                <span style={{ color: enabled ? "var(--a-accent)" : "var(--a-text-secondary)" }}>
+              <div
+                key={field.key}
+                style={{
+                  marginBottom: 4,
+                  color: "var(--a-text)",
+                  padding: "2px 6px",
+                  borderRadius: 4,
+                  background: isActive ? "rgba(196, 240, 103, 0.15)" : "transparent",
+                  transition: "background 0.3s",
+                }}
+              >
+                <span style={{ color: enabled ? "var(--a-accent)" : "var(--a-text-secondary)", fontWeight: isActive ? 600 : 400 }}>
                   {field.key}
                 </span>
+                {isActive && <span style={{ color: "var(--a-accent)", marginLeft: 8 }}>◀</span>}
                 {!enabled && (
                   <span style={{ color: "var(--a-text-secondary)", marginLeft: 8 }}>
                     (disabled)
