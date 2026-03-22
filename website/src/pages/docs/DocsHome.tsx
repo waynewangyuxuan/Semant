@@ -24,27 +24,33 @@ function MiniDemo() {
               onChange={(v) => setSize(v as number)}
             >
               {({ options: opts, selected, select }) => (
-                <div style={{ display: "flex", gap: 6 }}>
+                <select
+                  value={selected ?? ""}
+                  onChange={(e) => select(Number(e.target.value))}
+                  style={{
+                    width: "100%",
+                    padding: "10px 12px",
+                    fontSize: 14,
+                    fontFamily: "var(--font-body)",
+                    border: "1px solid var(--h-border)",
+                    borderRadius: 8,
+                    background: "#fff",
+                    color: "var(--h-text)",
+                    outline: "none",
+                    cursor: "pointer",
+                    appearance: "none",
+                    backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6b6b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")",
+                    backgroundRepeat: "no-repeat",
+                    backgroundPosition: "right 12px center",
+                    paddingRight: 36,
+                  }}
+                >
                   {opts.map((o) => (
-                    <button
-                      key={o.value}
-                      onClick={() => select(o.value)}
-                      style={{
-                        width: 40,
-                        height: 40,
-                        border: selected === o.value ? "2px solid var(--h-accent)" : "1px solid var(--h-border)",
-                        borderRadius: 8,
-                        background: selected === o.value ? "rgba(45,106,79,0.08)" : "#fff",
-                        color: selected === o.value ? "var(--h-accent)" : "var(--h-text)",
-                        fontWeight: selected === o.value ? 700 : 400,
-                        fontSize: 15,
-                        cursor: "pointer",
-                      }}
-                    >
-                      {o.label}
-                    </button>
+                    <option key={o.value} value={o.value}>
+                      {o.label} {o.label === "1" ? "guest" : "guests"}
+                    </option>
                   ))}
-                </div>
+                </select>
               )}
             </SemanticSelect>
           </div>
