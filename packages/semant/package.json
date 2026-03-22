@@ -1,0 +1,57 @@
+{
+  "name": "semant",
+  "version": "0.1.0",
+  "description": "React components that describe themselves to AI. Human-beautiful, machine-operable.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist"],
+  "keywords": [
+    "semantic",
+    "ai",
+    "llm",
+    "seo",
+    "geo",
+    "llms-txt",
+    "react",
+    "agent",
+    "ai-agent",
+    "structured-data",
+    "json-ld"
+  ],
+  "author": "Wayne",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/waynewangyuxuan/Semant"
+  },
+  "homepage": "https://waynewangyuxuan.github.io/Semant/",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@semant/core": "0.1.0",
+    "@semant/react": "0.1.0"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "devDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "@types/react": "^18.3.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0"
+  }
+}

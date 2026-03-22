@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 420" fill="none">
+  <defs>
+    <linearGradient id="divider-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2D6A4F" />
+      <stop offset="100%" stop-color="#6DBE6E" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="880" height="420" rx="16" fill="#FAFAF8" stroke="#E5E3DE" stroke-width="1" />
+
+  <!-- Left Panel -->
+  <rect x="16" y="16" width="412" height="388" rx="12" fill="#FFFFFF" stroke="#E5E3DE" stroke-width="1" />
+  <rect x="16" y="16" width="412" height="44" rx="12" fill="#F5F4F0" />
+  <rect x="16" y="48" width="412" height="1" fill="#E5E3DE" />
+  <circle cx="36" cy="38" r="5" fill="#E06C60" opacity="0.8" />
+  <text x="52" y="42" font-family="monospace" font-size="11" fill="#888888" letter-spacing="0.05em">WHAT AI SEES TODAY</text>
+
+  <!-- DOM text -->
+  <text x="32" y="82" font-family="monospace" font-size="10" fill="#9A9A9A">
+    <tspan x="32" dy="0">&lt;div class="relative flex min-h-screen</tspan>
+    <tspan x="32" dy="16">  flex-col bg-white antialiased"&gt;</tspan>
+    <tspan x="32" dy="16">  &lt;header class="sticky top-0 z-50</tspan>
+    <tspan x="32" dy="16">    w-full border-b border-border/40</tspan>
+    <tspan x="32" dy="16">    bg-background/95 backdrop-blur</tspan>
+    <tspan x="32" dy="16">    supports-[backdrop-filter]:</tspan>
+    <tspan x="32" dy="16">    bg-background/60"&gt;</tspan>
+    <tspan x="32" dy="16">    &lt;div class="container flex h-14</tspan>
+    <tspan x="32" dy="16">      max-w-screen-2xl items-center"&gt;</tspan>
+    <tspan x="32" dy="16">      &lt;div class="mr-4 hidden md:flex"&gt;</tspan>
+    <tspan x="32" dy="16">        &lt;a class="mr-6 flex items-center</tspan>
+    <tspan x="32" dy="16">          space-x-2" href="/"&gt;</tspan>
+    <tspan x="32" dy="16">          &lt;span class="hidden font-bold</tspan>
+    <tspan x="32" dy="16">            sm:inline-block"&gt;</tspan>
+    <tspan x="32" dy="16">            ...</tspan>
+    <tspan x="32" dy="16">  &lt;main class="flex-1"&gt;</tspan>
+    <tspan x="32" dy="16">    &lt;div class="mx-auto max-w-3xl</tspan>
+    <tspan x="32" dy="16">      px-4 py-8 sm:px-6 lg:px-8"&gt;</tspan>
+  </text>
+
+  <rect x="32" y="362" width="380" height="28" rx="6" fill="#FEF2F2" stroke="#E06C60" stroke-width="0.5" />
+  <text x="222" y="380" font-family="monospace" font-size="11" fill="#C0514A" text-anchor="middle">87,432 tokens · 93KB of noise</text>
+
+  <!-- Divider -->
+  <rect x="436" y="16" width="3" height="388" rx="1.5" fill="url(#divider-grad)" filter="url(#glow)" />
+
+  <!-- Right Panel -->
+  <rect x="447" y="16" width="417" height="388" rx="12" fill="#FFFFFF" stroke="#E5E3DE" stroke-width="1" />
+  <rect x="447" y="16" width="417" height="44" rx="12" fill="#F5F4F0" />
+  <rect x="447" y="48" width="417" height="1" fill="#E5E3DE" />
+  <circle cx="467" cy="38" r="5" fill="#2D6A4F" opacity="0.8" />
+  <text x="483" y="42" font-family="monospace" font-size="11" fill="#888888" letter-spacing="0.05em">WHAT AI SEES WITH SEMANT</text>
+
+  <!-- Plain monospace, single dark color -->
+  <text font-family="monospace" font-size="11.5" fill="#3A3A3A">
+    <tspan x="463" y="82"># Restaurant Booking</tspan>
+    <tspan x="463" y="100">> Book a table at Nōri Omakase</tspan>
+    <tspan x="463" y="128">[Restaurant: Nōri Omakase]</tspan>
+    <tspan x="479" y="146">cuisine: Japanese Omakase</tspan>
+    <tspan x="479" y="164">rating: 4.7/5 (328 reviews)</tspan>
+    <tspan x="479" y="182">price: $$$</tspan>
+    <tspan x="463" y="210">[Form: Book a Table]</tspan>
+    <tspan x="479" y="228">[Select: party_size] options: [1..8] current: 4</tspan>
+    <tspan x="479" y="246">[Date: check_in] current: 2026-03-28</tspan>
+    <tspan x="479" y="264">[Time: time] current: 19:00</tspan>
+    <tspan x="479" y="282">[Action: submit_booking] enabled: true</tspan>
+    <tspan x="463" y="310">## Commands</tspan>
+    <tspan x="479" y="328">set party_size &lt;1-8&gt;</tspan>
+    <tspan x="479" y="346">set check_in &lt;YYYY-MM-DD&gt;</tspan>
+    <tspan x="479" y="364">submit_booking</tspan>
+  </text>
+
+  <rect x="463" y="362" width="385" height="28" rx="6" fill="#F0FDF4" stroke="#2D6A4F" stroke-width="0.5" />
+  <text x="655" y="380" font-family="monospace" font-size="11" fill="#2D6A4F" text-anchor="middle">634 tokens · readable + operable</text>
+</svg>

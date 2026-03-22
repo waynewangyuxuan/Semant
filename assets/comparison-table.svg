@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 280" fill="none">
+  <rect width="800" height="280" rx="16" fill="#FAFAF8" stroke="#E5E3DE" stroke-width="1" />
+
+  <!-- Header row -->
+  <rect x="16" y="16" width="768" height="36" rx="8" fill="#F5F4F0" />
+  <text font-family="monospace" font-size="10" fill="#888888" letter-spacing="0.04em">
+    <tspan x="32" y="39"></tspan>
+    <tspan x="220" y="39">READABLE</tspan>
+    <tspan x="340" y="39">OPERABLE</tspan>
+    <tspan x="460" y="39">AUTO-SYNC</tspan>
+    <tspan x="580" y="39">TOKENS</tspan>
+    <tspan x="700" y="39">EFFORT</tspan>
+  </text>
+
+  <!-- Row 1 -->
+  <rect x="16" y="58" width="768" height="36" rx="0" fill="#FFFFFF" />
+  <text font-family="monospace" font-size="11">
+    <tspan x="32" y="81" fill="#6B7280">Screenshot + Vision</tspan>
+    <tspan x="240" y="81" fill="#2D6A4F">✓</tspan>
+    <tspan x="360" y="81" fill="#C0514A">✗</tspan>
+    <tspan x="473" y="81" fill="#2D6A4F">✓</tspan>
+    <tspan x="580" y="81" fill="#C0514A">~100K</tspan>
+    <tspan x="700" y="81" fill="#2D6A4F">Zero</tspan>
+  </text>
+
+  <!-- Row 2 -->
+  <rect x="16" y="94" width="768" height="36" rx="0" fill="#FAFAF8" />
+  <text font-family="monospace" font-size="11">
+    <tspan x="32" y="117" fill="#6B7280">DOM Parsing</tspan>
+    <tspan x="240" y="117" fill="#B8860B">~</tspan>
+    <tspan x="360" y="117" fill="#B8860B">~</tspan>
+    <tspan x="473" y="117" fill="#2D6A4F">✓</tspan>
+    <tspan x="580" y="117" fill="#C0514A">~80K</tspan>
+    <tspan x="700" y="117" fill="#2D6A4F">Zero</tspan>
+  </text>
+
+  <!-- Row 3 -->
+  <rect x="16" y="130" width="768" height="36" rx="0" fill="#FFFFFF" />
+  <text font-family="monospace" font-size="11">
+    <tspan x="32" y="153" fill="#6B7280">JSON-LD (manual)</tspan>
+    <tspan x="240" y="153" fill="#2D6A4F">✓</tspan>
+    <tspan x="360" y="153" fill="#C0514A">✗</tspan>
+    <tspan x="473" y="153" fill="#C0514A">✗</tspan>
+    <tspan x="580" y="153" fill="#2D6A4F">~1K</tspan>
+    <tspan x="700" y="153" fill="#C0514A">High</tspan>
+  </text>
+
+  <!-- Row 4 -->
+  <rect x="16" y="166" width="768" height="36" rx="0" fill="#FAFAF8" />
+  <text font-family="monospace" font-size="11">
+    <tspan x="32" y="189" fill="#6B7280">llms.txt (manual)</tspan>
+    <tspan x="240" y="189" fill="#2D6A4F">✓</tspan>
+    <tspan x="360" y="189" fill="#C0514A">✗</tspan>
+    <tspan x="473" y="189" fill="#C0514A">✗</tspan>
+    <tspan x="580" y="189" fill="#2D6A4F">~2K</tspan>
+    <tspan x="700" y="189" fill="#C0514A">High</tspan>
+  </text>
+
+  <!-- Row 5 -->
+  <rect x="16" y="202" width="768" height="36" rx="0" fill="#FFFFFF" />
+  <text font-family="monospace" font-size="11">
+    <tspan x="32" y="225" fill="#6B7280">Separate REST API</tspan>
+    <tspan x="240" y="225" fill="#2D6A4F">✓</tspan>
+    <tspan x="360" y="225" fill="#2D6A4F">✓</tspan>
+    <tspan x="473" y="225" fill="#C0514A">✗</tspan>
+    <tspan x="580" y="225" fill="#2D6A4F">~1K</tspan>
+    <tspan x="700" y="225" fill="#C0514A">Very High</tspan>
+  </text>
+
+  <!-- Row 6: semant (highlighted) -->
+  <rect x="16" y="238" width="768" height="36" rx="8" fill="#F0FDF4" stroke="#2D6A4F" stroke-width="1.2" />
+  <text font-family="monospace" font-size="11">
+    <tspan x="32" y="261" fill="#2D6A4F" font-weight="500">semant</tspan>
+    <tspan x="240" y="261" fill="#2D6A4F">✓</tspan>
+    <tspan x="360" y="261" fill="#2D6A4F">✓</tspan>
+    <tspan x="473" y="261" fill="#2D6A4F">✓</tspan>
+    <tspan x="580" y="261" fill="#2D6A4F">~800</tspan>
+    <tspan x="700" y="261" fill="#2D6A4F">3 lines</tspan>
+  </text>
+</svg>

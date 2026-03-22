@@ -4,7 +4,13 @@
 
 Build pages that are human-beautiful and machine-operable. Every component knows how to render itself *and* how to explain itself — as plain text, llms.txt, or JSON-LD. No separate metadata layer. No reverse engineering. One source of truth.
 
-[npm](https://www.npmjs.com/package/semant)
+[![npm](https://img.shields.io/npm/v/semant)](https://www.npmjs.com/package/semant) [![license](https://img.shields.io/npm/l/semant)](LICENSE) · [Live Demo](https://waynewangyuxuan.github.io/Semant/)
+
+---
+
+<p align="center">
+  <img src="assets/hero-before-after.svg" alt="Before: AI sees meaningless divs. After: AI sees structured semantic state." width="880" />
+</p>
 
 ---
 
@@ -106,6 +112,10 @@ Two extra lines (`<SemanticHead>` and `<SemanticBridge>`) and your page is now A
 
 Semant exposes your page state through four channels. You don't need to pick — `<SemanticHead>` and `<SemanticBridge>` enable all of them at once.
 
+<p align="center">
+  <img src="assets/architecture-4-channels.svg" alt="Architecture: one SemanticStore feeds JSON-LD, llms.txt, DOM node, and window.__semant" width="800" />
+</p>
+
 ### 1. JSON-LD in `<head>` (search engines, AI Overview)
 
 `<SemanticHead>` automatically injects a `<script type="application/ld+json">` tag with Schema.org structured data. Google, Bing, and AI Overview can parse it. Updates automatically when state changes.
@@ -194,6 +204,10 @@ All components support custom rendering via `children` render prop (except `Sema
 
 The reference components are just examples. The real power is `useSemantic`:
 
+<p align="center">
+  <img src="assets/code-diff-3-lines.svg" alt="Three lines of useSemantic() make any component AI-operable" width="880" />
+</p>
+
 ```tsx
 import { useSemantic } from "semant";
 
@@ -219,6 +233,10 @@ function MyFancyColorPicker({ color, onChange }) {
 ```
 
 Three lines of integration. Your component is now self-describing and AI-operable.
+
+<p align="center">
+  <img src="assets/comparison-table.svg" alt="Comparison: semant vs screenshot parsing vs DOM parsing vs manual metadata" width="800" />
+</p>
 
 ## Philosophy
 
