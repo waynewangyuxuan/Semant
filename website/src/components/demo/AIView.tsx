@@ -1,85 +1,38 @@
-import { useEffect, useRef, useState, useMemo } from "react";
-import { useSemanticPage } from "@semant/react";
-import type { SemanticNode, SemanticField } from "@semant/react";
+import { useEffect, useRef, useState } from "react";
+import { useSemanticPage, toPlainText } from "@semant/react";
 import { useExecutionLog } from "./executionLog";
 
 export function AIView() {
   const page = useSemanticPage();
-
-  // Track changed field keys for highlight animation
-  const [changedKeys, setChangedKeys] = useState<Set<string>>(new Set());
-  const prevValuesRef = useRef<Map<string, unknown>>(new Map());
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-
-  // Collect all fields and detect changes
-  const allFields = useMemo(() => {
-    const fields: { nodeId: string; field: SemanticField }[] = [];
-    for (const node of page.nodes) {
-      for (const field of node.fields) {
-        fields.push({ nodeId: node.id, field });
-      }
-    }
-    return fields;
-  }, [page]);
-
-  useEffect(() => {
-    const changed = new Set<string>();
-    for (const { field } of allFields) {
-      const prev = prevValuesRef.current.get(field.key);
-      if (prev !== undefined && prev !== field.value) {
-        changed.add(field.key);
-      }
-      prevValuesRef.current.set(field.key, field.value);
-    }
-    if (changed.size > 0) {
-      setChangedKeys(changed);
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      timeoutRef.current = setTimeout(() => setChangedKeys(new Set()), 900);
-    }
-  }, [allFields]);
-
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, []);
-
+  const text = toPlainText(page);
   const log = useExecutionLog();
 
-  // Determine which command key was most recently executed (for highlight)
-  const lastExecuted = log.length > 0 ? log[log.length - 1] : null;
-  const lastCmdKey = useMemo(() => {
-    if (!lastExecuted) return null;
-    const cmd = lastExecuted.command.trim();
-    // "set <key> <value>" → highlight key
-    if (cmd.startsWith("set ")) {
-      const parts = cmd.split(/\s+/);
-      return parts[1] ?? null;
-    }
-    // action name directly
-    return cmd.split(/\s+/)[0] ?? null;
-  }, [lastExecuted]);
+  // Track previous text to detect changed lines
+  const [prevText, setPrevText] = useState(text);
+  const [changedLines, setChangedLines] = useState<Set<number>>(new Set());
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  // Clear highlight after timeout
-  const [highlightedCmd, setHighlightedCmd] = useState<string | null>(null);
-  const cmdTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => {
-    if (lastCmdKey && lastExecuted) {
-      setHighlightedCmd(lastCmdKey);
-      if (cmdTimeoutRef.current) clearTimeout(cmdTimeoutRef.current);
-      cmdTimeoutRef.current = setTimeout(() => setHighlightedCmd(null), 1500);
-    }
-  }, [lastCmdKey, lastExecuted]);
-  useEffect(() => () => { if (cmdTimeoutRef.current) clearTimeout(cmdTimeoutRef.current); }, []);
+    if (text !== prevText) {
+      const newLines = text.split("\n");
+      const oldLines = prevText.split("\n");
+      const changed = new Set<number>();
+      for (let i = 0; i < newLines.length; i++) {
+        if (newLines[i] !== oldLines[i]) {
+          changed.add(i);
+        }
+      }
+      setChangedLines(changed);
+      setPrevText(text);
 
-  // Separate fields from actions, and extract semantic state vs commands
-  const stateNodes = page.nodes.filter((n) => n.role !== "Action");
-  const actions = allFields
-    .filter(({ field }) => field.type === "action")
-    .map(({ field }) => field);
-  const settableFields = allFields.filter(
-    ({ field }) => field.type !== "action" && field.set
-  );
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => setChangedLines(new Set()), 1200);
+    }
+  }, [text, prevText]);
+
+  useEffect(() => () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }, []);
+
+  const lines = text.split("\n");
 
   return (
     <div style={{ fontFamily: "var(--font-mono)", fontSize: 12 }}>
@@ -88,276 +41,185 @@ export function AIView() {
         style={{
           fontSize: 11,
           color: "var(--a-text-secondary)",
-          marginBottom: 16,
+          marginBottom: 12,
           textTransform: "uppercase",
           letterSpacing: 1,
         }}
       >
-        AI View — Semantic State
+        AI View — what the agent reads
       </div>
 
-      {/* ── STATE + LOG ── */}
-      <div>
-        {stateNodes.map((node) => (
-          <NodeBlock key={node.id} node={node} changedKeys={changedKeys} />
-        ))}
-
-        {/* Execution Log */}
-        {log.length > 0 && (
-          <div style={{ marginTop: 12 }}>
-            <div
-              style={{
-                fontSize: 11,
-                color: "var(--a-text-secondary)",
-                textTransform: "uppercase",
-                letterSpacing: 1,
-                marginBottom: 8,
-                paddingTop: 10,
-                borderTop: "1px dashed var(--a-border)",
-              }}
-            >
-              Execution Log
-            </div>
-            {log.slice(-5).map((entry, i) => (
-              <div
-                key={entry.timestamp + i}
-                style={{
-                  marginBottom: 6,
-                  padding: "4px 8px",
-                  borderRadius: 4,
-                  background: entry.ok ? "rgba(74, 222, 128, 0.08)" : "rgba(248, 113, 113, 0.08)",
-                  borderLeft: `3px solid ${entry.ok ? "#4ade80" : "#f87171"}`,
-                }}
-              >
-                <div>
-                  <span style={{ color: "var(--a-text-secondary)" }}>{">"} </span>
-                  <span style={{ color: "var(--a-text)" }}>{entry.command}</span>
-                </div>
-                <div
-                  style={{
-                    color: entry.ok ? "#4ade80" : "#f87171",
-                    fontSize: 11,
-                    paddingLeft: 14,
-                  }}
-                >
-                  {entry.ok ? "✓" : "✗"} {entry.message}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* ── COMMANDS SECTION ── */}
-      {(settableFields.length > 0 || actions.length > 0) && (
-        <div style={{ marginTop: 16 }}>
+      {/* Plain text with syntax coloring */}
+      <div style={{ lineHeight: 1.8 }}>
+        {lines.map((line, i) => (
           <div
+            key={i}
             style={{
-              fontSize: 11,
-              color: "var(--a-accent)",
-              textTransform: "uppercase",
-              letterSpacing: 1,
-              marginBottom: 8,
+              padding: "1px 6px",
+              borderRadius: 3,
+              background: changedLines.has(i)
+                ? "rgba(196, 240, 103, 0.12)"
+                : "transparent",
+              transition: "background 0.4s",
             }}
           >
-            Available Commands
+            <PlainTextLine line={line} highlight={changedLines.has(i)} />
           </div>
+        ))}
+      </div>
 
-          {settableFields.map(({ field }) => {
-            const isActive = highlightedCmd === field.key;
-            return (
-              <div
-                key={field.key}
-                style={{
-                  marginBottom: 4,
-                  color: "var(--a-text)",
-                  padding: "2px 6px",
-                  borderRadius: 4,
-                  background: isActive ? "rgba(196, 240, 103, 0.15)" : "transparent",
-                  transition: "background 0.3s",
-                }}
-              >
-                <span style={{ color: "var(--a-text-secondary)" }}>set</span>{" "}
-                <span style={{ color: "var(--a-accent)", fontWeight: isActive ? 600 : 400 }}>{field.key}</span>{" "}
-                <span style={{ color: "var(--a-text-secondary)" }}>
-                  {formatConstraintHint(field)}
-                </span>
-                {isActive && <span style={{ color: "var(--a-accent)", marginLeft: 8 }}>◀</span>}
-              </div>
-            );
-          })}
-
-          {actions.map((field) => {
-            const enabled = field.constraints?.enabled !== false;
-            const isActive = highlightedCmd === field.key;
-            return (
-              <div
-                key={field.key}
-                style={{
-                  marginBottom: 4,
-                  color: "var(--a-text)",
-                  padding: "2px 6px",
-                  borderRadius: 4,
-                  background: isActive ? "rgba(196, 240, 103, 0.15)" : "transparent",
-                  transition: "background 0.3s",
-                }}
-              >
-                <span style={{ color: enabled ? "var(--a-accent)" : "var(--a-text-secondary)", fontWeight: isActive ? 600 : 400 }}>
-                  {field.key}
-                </span>
-                {isActive && <span style={{ color: "var(--a-accent)", marginLeft: 8 }}>◀</span>}
-                {!enabled && (
-                  <span style={{ color: "var(--a-text-secondary)", marginLeft: 8 }}>
-                    (disabled)
-                  </span>
-                )}
-                {field.constraints?.requires != null && (
-                  <span style={{ color: "var(--a-text-secondary)", marginLeft: 8, fontSize: 11 }}>
-                    requires: {String(field.constraints.requires)}
-                  </span>
-                )}
-              </div>
-            );
-          })}
+      {/* Execution log (inline, below the text) */}
+      {log.length > 0 && (
+        <div style={{ marginTop: 16, paddingTop: 12, borderTop: "1px dashed var(--a-border)" }}>
+          <div style={{ fontSize: 11, color: "var(--a-text-secondary)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>
+            Agent Actions
+          </div>
+          {log.slice(-5).map((entry, i) => (
+            <div
+              key={entry.timestamp + i}
+              style={{
+                marginBottom: 4,
+                padding: "3px 8px",
+                borderRadius: 3,
+                borderLeft: `3px solid ${entry.ok ? "#4ade80" : "#f87171"}`,
+                background: entry.ok ? "rgba(74, 222, 128, 0.06)" : "rgba(248, 113, 113, 0.06)",
+              }}
+            >
+              <span style={{ color: "var(--a-text-secondary)" }}>{">"} </span>
+              <span style={{ color: "var(--a-text)" }}>{entry.command}</span>
+              <span style={{ color: entry.ok ? "#4ade80" : "#f87171", marginLeft: 8, fontSize: 11 }}>
+                {entry.ok ? "✓" : "✗"} {entry.message}
+              </span>
+            </div>
+          ))}
         </div>
       )}
     </div>
   );
 }
 
-function NodeBlock({
-  node,
-  changedKeys,
-}: {
-  node: SemanticNode;
-  changedKeys: Set<string>;
-}) {
-  const interactiveFields = node.fields.filter((f) => f.type !== "action");
-  const hasMeta = node.meta && Object.keys(node.meta).length > 0;
+/** Syntax-color a single line of toPlainText() output */
+function PlainTextLine({ line, highlight }: { line: string; highlight: boolean }) {
+  if (!line) return <span>{"\u00A0"}</span>;
+
+  // Page title: # Title
+  if (line.startsWith("# ")) {
+    return <span style={{ color: "var(--a-text)", fontWeight: 600, fontSize: 14 }}>{line}</span>;
+  }
+
+  // Description: > text
+  if (line.startsWith("> ")) {
+    return <span style={{ color: "var(--a-text-secondary)", fontStyle: "italic" }}>{line}</span>;
+  }
+
+  // Section header: ## Commands
+  if (line.startsWith("## ")) {
+    return (
+      <span style={{ color: "var(--a-accent)", fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: 1 }}>
+        {line}
+      </span>
+    );
+  }
+
+  // Node header: [role: title] or [role]
+  const nodeMatch = line.match(/^\[([^\]]+)\]$/);
+  if (nodeMatch) {
+    return colorizeNodeHeader(nodeMatch[1]);
+  }
+
+  // Field line: [Type: key] options/range/current
+  const fieldMatch = line.match(/^(\s+)\[([A-Za-z]+): ([^\]]+)\](.*)$/);
+  if (fieldMatch) {
+    return colorizeFieldLine(fieldMatch[1], fieldMatch[2], fieldMatch[3], fieldMatch[4], highlight);
+  }
+
+  // Action line: [Action: key] enabled: true/false
+  const actionMatch = line.match(/^(\s+)\[Action: ([^\]]+)\] enabled: (true|false)$/);
+  if (actionMatch) {
+    return colorizeActionLine(actionMatch[1], actionMatch[2], actionMatch[3] === "true");
+  }
+
+  // Command line: set key <hint> or action_name
+  const cmdMatch = line.match(/^(\s+)(set \S+ .+|\S+)$/);
+  if (cmdMatch) {
+    return (
+      <span>
+        <span style={{ color: "var(--a-text-secondary)" }}>{cmdMatch[1]}</span>
+        <span style={{ color: "var(--a-accent)" }}>{cmdMatch[2]}</span>
+      </span>
+    );
+  }
+
+  // Meta line: key: value
+  const metaMatch = line.match(/^(\s+)(\S+): (.+)$/);
+  if (metaMatch) {
+    return (
+      <span>
+        <span style={{ color: "var(--a-text-secondary)" }}>{metaMatch[1]}{metaMatch[2]}: </span>
+        <span style={{ color: "var(--a-text)" }}>{metaMatch[3]}</span>
+      </span>
+    );
+  }
+
+  // Fallback
+  return <span style={{ color: "var(--a-text)" }}>{line}</span>;
+}
+
+function colorizeNodeHeader(content: string) {
+  const parts = content.split(": ");
+  const role = parts[0];
+  const title = parts.slice(1).join(": ");
+  return (
+    <span>
+      <span style={{ color: "var(--a-text-secondary)" }}>[</span>
+      <span style={{ color: "var(--a-accent)", fontWeight: 600 }}>{role}</span>
+      {title && (
+        <>
+          <span style={{ color: "var(--a-text-secondary)" }}>: </span>
+          <span style={{ color: "var(--a-text)", fontWeight: 500 }}>{title}</span>
+        </>
+      )}
+      <span style={{ color: "var(--a-text-secondary)" }}>]</span>
+    </span>
+  );
+}
+
+function colorizeFieldLine(indent: string, type: string, key: string, rest: string, highlight: boolean) {
+  // rest contains things like: options: [...] current: value
+  // Highlight the "current: value" part
+  const currentMatch = rest.match(/^(.*?)( current: )(.+)$/);
 
   return (
-    <div style={{ marginBottom: 14 }}>
-      {/* Node header */}
-      <div style={{ marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
-        <span
-          style={{
-            background: "rgba(196, 240, 103, 0.12)",
-            color: "var(--a-accent)",
-            padding: "2px 8px",
-            borderRadius: 4,
-            fontSize: 11,
-            fontWeight: 600,
-            textTransform: "capitalize",
-          }}
-        >
-          {node.role}
-        </span>
-        {node.title && (
-          <span style={{ color: "var(--a-text)", fontWeight: 500 }}>{node.title}</span>
-        )}
-      </div>
-
-      {/* Meta */}
-      {hasMeta && (
-        <div style={{ paddingLeft: 12, marginBottom: 6 }}>
-          {Object.entries(node.meta!).map(([key, val]) => {
-            const display = formatValue(val);
-            return (
-              <div key={key} style={{ color: "var(--a-text-secondary)", marginBottom: 2 }}>
-                <span>{key}</span>
-                <span style={{ color: "var(--a-text-secondary)" }}>: </span>
-                <span style={{ color: "var(--a-text)" }}>{display}</span>
-              </div>
-            );
-          })}
-        </div>
+    <span>
+      <span style={{ color: "var(--a-text-secondary)" }}>{indent}[</span>
+      <span style={{ color: "var(--a-text-secondary)", fontSize: 11 }}>{type}</span>
+      <span style={{ color: "var(--a-text-secondary)" }}>: </span>
+      <span style={{ color: "var(--a-accent)" }}>{key}</span>
+      <span style={{ color: "var(--a-text-secondary)" }}>]</span>
+      {currentMatch ? (
+        <>
+          <span style={{ color: "var(--a-text-secondary)" }}>{currentMatch[1]}</span>
+          <span style={{ color: "var(--a-text-secondary)" }}>{currentMatch[2]}</span>
+          <span style={{ color: highlight ? "var(--a-accent)" : "var(--a-text)", fontWeight: highlight ? 600 : 400, transition: "color 0.3s" }}>
+            {currentMatch[3]}
+          </span>
+        </>
+      ) : (
+        <span style={{ color: "var(--a-text-secondary)" }}>{rest}</span>
       )}
-
-      {/* Fields */}
-      {interactiveFields.map((field) => {
-        const isChanged = changedKeys.has(field.key);
-        return (
-          <div
-            key={field.key}
-            style={{
-              paddingLeft: 12,
-              marginBottom: 4,
-              padding: "3px 6px 3px 12px",
-              borderRadius: 4,
-              background: isChanged ? "rgba(196, 240, 103, 0.12)" : "transparent",
-              transition: "background 0.3s",
-            }}
-          >
-            <span
-              style={{
-                color: "var(--a-text-secondary)",
-                fontSize: 11,
-                textTransform: "uppercase",
-              }}
-            >
-              {field.type}
-            </span>{" "}
-            <span style={{ color: "var(--a-accent)" }}>{field.key}</span>
-            {field.value !== null && field.value !== undefined && field.value !== "" && (
-              <>
-                <span style={{ color: "var(--a-text-secondary)" }}> = </span>
-                <span
-                  style={{
-                    color: isChanged ? "var(--a-accent)" : "var(--a-text)",
-                    fontWeight: isChanged ? 600 : 400,
-                    transition: "color 0.3s",
-                  }}
-                >
-                  {formatValue(field.value)}
-                </span>
-              </>
-            )}
-            {field.constraints && Object.keys(field.constraints).length > 0 && (
-              <span style={{ color: "var(--a-text-secondary)", fontSize: 11, marginLeft: 8 }}>
-                {formatConstraints(field.constraints)}
-              </span>
-            )}
-          </div>
-        );
-      })}
-    </div>
+    </span>
   );
 }
 
-function formatValue(val: unknown): string {
-  if (val === null || val === undefined) return "—";
-  if (typeof val === "string") return `"${val}"`;
-  if (Array.isArray(val)) {
-    if (val.length <= 5) return `[${val.map((v) => formatValue(v)).join(", ")}]`;
-    return `[${val.slice(0, 3).map((v) => formatValue(v)).join(", ")}, ... +${val.length - 3}]`;
-  }
-  return String(val);
-}
-
-function formatConstraints(c: Record<string, unknown>): string {
-  const parts: string[] = [];
-  for (const [key, val] of Object.entries(c)) {
-    if (key === "enabled" || key === "requires") continue; // shown separately for actions
-    if (key === "options" && Array.isArray(val)) {
-      if (val.length <= 6) {
-        parts.push(`options: [${val.join(", ")}]`);
-      } else {
-        parts.push(`options: [${val.slice(0, 4).join(", ")}, ...+${val.length - 4}]`);
-      }
-    } else {
-      parts.push(`${key}: ${formatValue(val)}`);
-    }
-  }
-  return parts.length ? `(${parts.join(", ")})` : "";
-}
-
-function formatConstraintHint(field: SemanticField): string {
-  if (field.type === "date") return "<YYYY-MM-DD>";
-  if (field.type === "number") return "<number>";
-  if (field.constraints?.options && Array.isArray(field.constraints.options)) {
-    const opts = field.constraints.options;
-    if (opts.length <= 6) return `<${opts.join("|")}>`;
-    return `<${opts.slice(0, 4).join("|")}|...>`;
-  }
-  return "<value>";
+function colorizeActionLine(indent: string, key: string, enabled: boolean) {
+  return (
+    <span>
+      <span style={{ color: "var(--a-text-secondary)" }}>{indent}[</span>
+      <span style={{ color: "var(--a-text-secondary)", fontSize: 11 }}>Action</span>
+      <span style={{ color: "var(--a-text-secondary)" }}>: </span>
+      <span style={{ color: enabled ? "var(--a-accent)" : "var(--a-text-secondary)" }}>{key}</span>
+      <span style={{ color: "var(--a-text-secondary)" }}>] enabled: </span>
+      <span style={{ color: enabled ? "#4ade80" : "#f87171" }}>{String(enabled)}</span>
+    </span>
+  );
 }

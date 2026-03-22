@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { SemanticProvider } from "@semant/react";
 import { BookingScene } from "./scenes/BookingScene";
 import { AIView } from "./AIView";
-import { CommandTerminal } from "./CommandTerminal";
+import { CommandTerminal, type TerminalHandle } from "./CommandTerminal";
 import { TokenCounter } from "./TokenCounter";
 
 const TABS = [
@@ -14,8 +14,65 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]["id"];
 
+/** Command-driven animation sequence */
+const DEMO_COMMANDS = [
+  { cmd: 'set destination "San Diego, CA"', delay: 1200 },
+  { cmd: "set check_in 2026-04-15", delay: 1000 },
+  { cmd: "set check_out 2026-04-18", delay: 1000 },
+  { cmd: "set guests 2", delay: 800 },
+  { cmd: "set rooms 1", delay: 800 },
+  { cmd: "search_hotels", delay: 2500 },
+  { cmd: "book_hotel", delay: 3000 },
+];
+
 export function DemoScene() {
   const [activeTab, setActiveTab] = useState<TabId>("agentic");
+  const terminalRef = useRef<TerminalHandle>(null);
+  const animatingRef = useRef(false);
+  const pausedRef = useRef(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  const runAnimation = useCallback(async () => {
+    if (animatingRef.current) return;
+    animatingRef.current = true;
+
+    while (!pausedRef.current) {
+      for (const step of DEMO_COMMANDS) {
+        if (pausedRef.current) break;
+        if (terminalRef.current) {
+          await terminalRef.current.agentExecute(step.cmd);
+        }
+        if (pausedRef.current) break;
+        await new Promise((r) => { timeoutRef.current = setTimeout(r, step.delay); });
+      }
+      if (pausedRef.current) break;
+      // Wait before restarting the loop
+      await new Promise((r) => { timeoutRef.current = setTimeout(r, 2000); });
+    }
+
+    animatingRef.current = false;
+  }, []);
+
+  // Start animation on mount
+  useEffect(() => {
+    const startTimer = setTimeout(() => runAnimation(), 1500);
+    return () => {
+      clearTimeout(startTimer);
+      pausedRef.current = true;
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, [runAnimation]);
+
+  // Pause on user interaction, resume after idle
+  const handleUserInteract = useCallback(() => {
+    pausedRef.current = true;
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    // Resume after 8 seconds of inactivity
+    timeoutRef.current = setTimeout(() => {
+      pausedRef.current = false;
+      runAnimation();
+    }, 8000);
+  }, [runAnimation]);
 
   return (
     <div style={{ borderRadius: "var(--h-radius)", overflow: "hidden", border: "1px solid var(--h-border)" }}>
@@ -66,7 +123,11 @@ export function DemoScene() {
 
       {/* Demo Content */}
       <SemanticProvider title="Hotel Search" description="Search and book hotels on Booking.com">
-        <div style={{ display: "flex", minHeight: 480 }}>
+        <div
+          style={{ display: "flex", minHeight: 480 }}
+          onClick={handleUserInteract}
+          onKeyDown={handleUserInteract}
+        >
           {/* Human View */}
           <div
             style={{
@@ -106,7 +167,7 @@ export function DemoScene() {
         </div>
 
         {/* Command Terminal */}
-        <CommandTerminal />
+        <CommandTerminal ref={terminalRef} />
 
         {/* Token Counter */}
         <TokenCounter />

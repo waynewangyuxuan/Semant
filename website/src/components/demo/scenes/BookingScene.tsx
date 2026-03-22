@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import {
   SemanticTextInput,
   SemanticDatePicker,
@@ -7,7 +7,6 @@ import {
   SemanticList,
   SemanticInfo,
 } from "@semant/react";
-import { useAutoPlay } from "../useAutoPlay";
 
 interface Hotel {
   id: string;
@@ -47,26 +46,6 @@ export function BookingScene() {
 
   const canSearch = destination && checkIn && checkOut;
 
-  // Self-cycling animation
-  const steps = useMemo(
-    () => [
-      { action: () => { setDestination(""); setCheckIn(null); setCheckOut(null); setGuests(2); setRooms(1); setSearched(false); setBooked(false); }, delay: 800 },
-      { action: () => setDestination("San"), delay: 300 },
-      { action: () => setDestination("San Di"), delay: 200 },
-      { action: () => setDestination("San Diego"), delay: 200 },
-      { action: () => setDestination("San Diego, CA"), delay: 800 },
-      { action: () => setCheckIn("2026-04-15"), delay: 600 },
-      { action: () => setCheckOut("2026-04-18"), delay: 600 },
-      { action: () => setGuests(2), delay: 400 },
-      { action: () => setRooms(1), delay: 600 },
-      { action: () => { setSearched(true); setBooked(false); }, delay: 2000 },
-      { action: () => setBooked(true), delay: 2500 },
-    ],
-    []
-  );
-
-  const { pause } = useAutoPlay(steps);
-
   const inputStyle: React.CSSProperties = {
     width: "100%",
     padding: "10px 12px",
@@ -91,7 +70,7 @@ export function BookingScene() {
   };
 
   return (
-    <div style={{ fontFamily: "var(--font-body)" }} onClick={pause} onKeyDown={pause}>
+    <div style={{ fontFamily: "var(--font-body)" }}>
       {/* Booking.com header */}
       <div
         style={{
