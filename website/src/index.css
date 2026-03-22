@@ -56,22 +56,3 @@ body {
 .heading {
   font-family: var(--font-heading);
 }
-
-/* === AI View scrollbar (dark theme) === */
-.ai-view-scroll::-webkit-scrollbar {
-  width: 6px;
-}
-.ai-view-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-.ai-view-scroll::-webkit-scrollbar-thumb {
-  background: var(--a-border);
-  border-radius: 3px;
-}
-.ai-view-scroll::-webkit-scrollbar-thumb:hover {
-  background: var(--a-text-secondary);
-}
-.ai-view-scroll {
-  scrollbar-width: thin;
-  scrollbar-color: var(--a-border) transparent;
-}

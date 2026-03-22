@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo, useCallback } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useSemanticPage } from "@semant/react";
 import type { SemanticNode, SemanticField } from "@semant/react";
 import { useExecutionLog } from "./executionLog";
@@ -45,18 +45,6 @@ export function AIView() {
   }, []);
 
   const log = useExecutionLog();
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  // Auto-scroll to bottom when state or log changes
-  const scrollToBottom = useCallback(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-    }
-  }, []);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [allFields, log, scrollToBottom]);
 
   // Determine which command key was most recently executed (for highlight)
   const lastExecuted = log.length > 0 ? log[log.length - 1] : null;
@@ -94,23 +82,22 @@ export function AIView() {
   );
 
   return (
-    <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, display: "flex", flexDirection: "column", height: "100%" }}>
+    <div style={{ fontFamily: "var(--font-mono)", fontSize: 12 }}>
       {/* Header */}
       <div
         style={{
           fontSize: 11,
           color: "var(--a-text-secondary)",
-          padding: "16px 24px 8px",
+          marginBottom: 16,
           textTransform: "uppercase",
           letterSpacing: 1,
-          flexShrink: 0,
         }}
       >
         AI View — Semantic State
       </div>
 
-      {/* ── SCROLLABLE STATE + LOG ── */}
-      <div ref={scrollRef} className="ai-view-scroll" style={{ flex: 1, overflow: "auto", padding: "8px 24px" }}>
+      {/* ── STATE + LOG ── */}
+      <div>
         {stateNodes.map((node) => (
           <NodeBlock key={node.id} node={node} changedKeys={changedKeys} />
         ))}
@@ -161,16 +148,9 @@ export function AIView() {
         )}
       </div>
 
-      {/* ── COMMANDS SECTION (pinned to bottom) ── */}
+      {/* ── COMMANDS SECTION ── */}
       {(settableFields.length > 0 || actions.length > 0) && (
-        <div
-          style={{
-            flexShrink: 0,
-            padding: "12px 24px 16px",
-            borderTop: "1px solid var(--a-border)",
-            background: "var(--a-bg)",
-          }}
-        >
+        <div style={{ marginTop: 16 }}>
           <div
             style={{
               fontSize: 11,

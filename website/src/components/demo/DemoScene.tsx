@@ -66,7 +66,7 @@ export function DemoScene() {
 
       {/* Demo Content */}
       <SemanticProvider title="Hotel Search" description="Search and book hotels on Booking.com">
-        <div style={{ display: "flex", height: 520 }}>
+        <div style={{ display: "flex", minHeight: 480 }}>
           {/* Human View */}
           <div
             style={{
@@ -98,9 +98,7 @@ export function DemoScene() {
             style={{
               flex: 1,
               background: "var(--a-bg)",
-              display: "flex",
-              flexDirection: "column",
-              overflow: "hidden",
+              padding: 24,
             }}
           >
             <AIView />
