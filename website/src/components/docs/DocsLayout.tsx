@@ -77,24 +77,26 @@ export function DocsLayout() {
           style={{
             flex: 1,
             padding: "40px 48px",
-            overflow: "auto",
+            overflowY: "auto",
           }}
         >
-          <Outlet />
+          <div style={{ maxWidth: 800 }}>
+            <Outlet />
 
-          {/* Footer */}
-          <footer
-            style={{
-              marginTop: 60,
-              paddingTop: 20,
-              borderTop: "1px solid var(--h-border)",
-              fontSize: 13,
-              color: "var(--h-text-secondary)",
-              fontFamily: "var(--font-mono)",
-            }}
-          >
-            This page describes itself. Console → window.__semant.getState()
-          </footer>
+            {/* Footer */}
+            <footer
+              style={{
+                marginTop: 60,
+                paddingTop: 20,
+                borderTop: "1px solid var(--h-border)",
+                fontSize: 13,
+                color: "var(--h-text-secondary)",
+                fontFamily: "var(--font-mono)",
+              }}
+            >
+              This page describes itself. Console → window.__semant.getState()
+            </footer>
+          </div>
         </main>
       </div>
     </div>
