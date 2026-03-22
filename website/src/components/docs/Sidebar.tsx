@@ -11,27 +11,25 @@ interface NavSection {
   items: NavItem[];
 }
 
-const BASE = import.meta.env.BASE_URL;
-
 const SECTIONS: NavSection[] = [
   {
     title: "Start",
     items: [
-      { label: "Home", to: `${BASE}docs` },
-      { label: "Why semant", to: `${BASE}docs/why` },
-      { label: "Quick Start", to: `${BASE}docs/quickstart` },
+      { label: "Home", to: `/docs` },
+      { label: "Why semant", to: `/docs/why` },
+      { label: "Quick Start", to: `/docs/quickstart` },
     ],
   },
   {
     title: "Guides",
     items: [
-      { label: "Wrap Your Own Component", to: `${BASE}docs/guides/wrap-component` },
+      { label: "Wrap Your Own Component", to: `/docs/guides/wrap-component` },
     ],
   },
   {
     title: "Reference",
     items: [
-      { label: "API Reference", to: `${BASE}docs/reference/api` },
+      { label: "API Reference", to: `/docs/reference/api` },
     ],
   },
   {
@@ -83,7 +81,7 @@ export function Sidebar() {
               <NavLink
                 key={item.to}
                 to={item.to}
-                end={item.to === `${BASE}docs`}
+                end={item.to === `/docs`}
                 style={({ isActive }) => linkStyle(isActive, false)}
               >
                 {item.label}

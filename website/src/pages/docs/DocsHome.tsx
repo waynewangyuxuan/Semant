@@ -2,8 +2,6 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { SemanticProvider, SemanticSelect, useSemanticPage, toPlainText } from "@semant/react";
 
-const BASE = import.meta.env.BASE_URL;
-
 function MiniDemo() {
   const [size, setSize] = useState<number>(2);
   const options = [1, 2, 3, 4, 5, 6].map((n) => ({ value: n, label: `${n}` }));
@@ -76,7 +74,7 @@ export function DocsHome() {
 
       <div style={{ display: "flex", gap: 12, marginTop: 32 }}>
         <Link
-          to={`${BASE}docs/quickstart`}
+          to={"/docs/quickstart"}
           style={{
             padding: "10px 24px",
             background: "var(--h-accent)",
@@ -90,7 +88,7 @@ export function DocsHome() {
           5 min Quick Start →
         </Link>
         <Link
-          to={`${BASE}docs/why`}
+          to={"/docs/why"}
           style={{
             padding: "10px 24px",
             border: "1px solid var(--h-border)",

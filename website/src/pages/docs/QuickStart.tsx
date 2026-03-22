@@ -97,7 +97,7 @@ window.__semant.execute("set party_size 4")
           examples/restaurant-booking
         </a>
         , or learn how to{" "}
-        <a href={`${import.meta.env.BASE_URL}docs/guides/wrap-component`} style={{ color: "var(--h-accent)" }}>
+        <a href="/docs/guides/wrap-component" style={{ color: "var(--h-accent)" }}>
           wrap your own component
         </a>.
       </div>

@@ -1,7 +1,6 @@
 import { Outlet, Link } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
 
-const BASE = import.meta.env.BASE_URL;
 
 export function DocsLayout() {
   return (
@@ -21,7 +20,7 @@ export function DocsLayout() {
       >
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <Link
-            to={BASE}
+            to="/"
             style={{
               fontFamily: "var(--font-heading)",
               fontSize: 18,
@@ -46,7 +45,7 @@ export function DocsLayout() {
           </span>
         </div>
         <div style={{ display: "flex", gap: 20, fontSize: 14 }}>
-          <Link to={`${BASE}docs`} style={{ color: "var(--h-accent)", textDecoration: "none", fontWeight: 500 }}>
+          <Link to="/docs" style={{ color: "var(--h-accent)", textDecoration: "none", fontWeight: 500 }}>
             Docs
           </Link>
           <a href="https://github.com/waynewangyuxuan/Semant" target="_blank" rel="noopener" style={{ color: "var(--h-text-secondary)", textDecoration: "none" }}>
