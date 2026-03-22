@@ -2,7 +2,7 @@
 
 ## Design Principle
 
-Each demo is a **self-cycling showcase animation** that can be **interrupted by human interaction**. By default, values change and the AI view updates automatically. When the user clicks UI or types a command, animation pauses and interactive mode activates.
+Each demo is a **command-driven showcase** that can be **interrupted by human interaction**. On page load, an agent "types" commands in the terminal — each command executes via `store.execute()`, and the UI updates as a result. This demonstrates the core value: AI operates the page through text, not screenshots. User click cancels the animation; the user can then type their own commands.
 
 ## Scene Overview
 
@@ -99,20 +99,26 @@ Each demo is a **self-cycling showcase animation** that can be **interrupted by 
 ## Demo Area Layout
 
 ```
-┌──────────────────────────────────────────────────────┐
-│ [GEO/SEO]  [Deep Research]  [Agentic]  [Structured]  │ ← tabs
-├──────────────────────┬─┬─────────────────────────────┤
-│   HUMAN VIEW         │█│   AI VIEW                    │
-│   (target product UI │█│   (real-time semantic output  │
-│    self-cycling       │ │    syncs with animation       │
-│    + interactive)     │ │    highlights on change)      │
-├──────────────────────┴─┴─────────────────────────────┤
-│  ▸ set check_in 2026-04-15                       [↵] │ ← command terminal
-├──────────────────────────────────────────────────────┤
-│  Raw DOM: 93,847 → semant: 712 tokens      (131×)   │ ← token counter
-└──────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│ [GEO/SEO]  [Deep Research]  [Agentic]  [Structured Data]     │ ← tabs
+├────────────────┬─────────────────┬───────────────────────────┤
+│  HUMAN VIEW    │  AI VIEW        │  AGENT CONSOLE            │
+│  (product UI,  │  (toPlainText   │  (terminal-style log of   │
+│   interactive) │   + syntax      │   executed commands with   │
+│                │   coloring,     │   results)                │
+│                │   values flash  │                           │
+│                │   on change)    │  agent $ set check_in ... │
+│                │                 │  → set check_in = ...     │
+├────────────────┴─────────────────┴───────────────────────────┤
+│  $ set check_in 2026-04-15                               [↵] │ ← input only
+├──────────────────────────────────────────────────────────────┤
+│  Raw DOM: 93,847 → semant: 712 tokens              (131×)   │ ← token counter
+└──────────────────────────────────────────────────────────────┘
 ```
 
-- Tab switching smoothly transitions both Human View and AI View
-- Command terminal: defaults to animated command replay; "Try it yourself" switches to interactive mode
+- Three-column layout: Human View | AI View (plaintext) | Agent Console
+- AI View uses `toPlainText()` output with syntax coloring — shows what agents actually read
+- Agent Console shows command execution flow in terminal style (separate from AI View)
+- Animation is command-driven: agent "types" commands in terminal, executes via `store.execute()`, UI updates as result. Runs once on page load, stops after completing the sequence.
+- Bottom bar is input-only — user can type commands manually
 - Token counter: numbers must be verifiable from real DOM measurements

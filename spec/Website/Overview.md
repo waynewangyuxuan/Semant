@@ -40,18 +40,32 @@ semant/
 ├── packages/core/
 ├── packages/react/
 ├── examples/restaurant-booking/
-├── website/                    ← NEW
-│   ├── src/                    ← Landing page
-│   └── docs/                   ← Documentation (MDX)
+├── website/                    ← Vite + React
+│   ├── index.html
+│   ├── package.json
+│   ├── vite.config.ts
+│   └── src/
+│       ├── main.tsx
+│       ├── App.tsx             ← 3-screen landing shell
+│       ├── index.css           ← Design tokens as CSS vars
+│       └── components/demo/
+│           ├── DemoScene.tsx    ← Tab bar + 3-column layout + animation
+│           ├── AIView.tsx       ← toPlainText() with syntax coloring
+│           ├── AgentConsole.tsx  ← Terminal-style command log
+│           ├── CommandTerminal.tsx ← Input bar + agent typing effect
+│           ├── TokenCounter.tsx
+│           ├── executionLog.ts  ← Shared log between terminal + console
+│           └── scenes/
+│               └── BookingScene.tsx ← Booking.com demo
 └── package.json                ← workspaces includes "website"
 ```
 
 ## MVP Scope
 
 ### Landing Page — 3 screens
-1. **Hero** — Component collage with flip animation
-2. **Interactive Demo** — Four demo scenes with dual view + command terminal
-3. **Manifesto + CTA** — Short copy + `npm install` + links
+1. **Hero** — Logo + tagline + "See it in action" CTA
+2. **Interactive Demo** — Four demo scenes with three-column layout (Human View | AI View | Agent Console) + command input + token counter
+3. **Manifesto + CTA** — "The page is its own API." + `npm install` + links
 
 Deferred to Phase 2: Token Economics, Developer Preview, Output Formats.
 
