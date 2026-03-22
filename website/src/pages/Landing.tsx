@@ -1,8 +1,13 @@
 import { Link } from "react-router-dom";
+import { SemanticProvider, SemanticHead, SemanticBridge, SemanticInfo } from "@semant/react";
 import { DemoScene } from "../components/demo/DemoScene";
 
 export function Landing() {
   return (
+    <SemanticProvider title="semant" description="The web that AI can operate">
+      <SemanticHead />
+      <SemanticBridge />
+      <SemanticInfo role="landing_page" title="semant" meta={{ tagline: "The web that AI can operate" }} />
     <div style={{ minHeight: "100vh" }}>
       {/* Top Nav */}
       <nav
@@ -126,5 +131,6 @@ export function Landing() {
         </div>
       </footer>
     </div>
+    </SemanticProvider>
   );
 }

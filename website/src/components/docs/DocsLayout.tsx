@@ -1,9 +1,24 @@
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, Link, useLocation } from "react-router-dom";
+import { SemanticProvider, SemanticHead, SemanticBridge, SemanticInfo } from "@semant/react";
 import { Sidebar } from "./Sidebar";
 
+function pageTitle(pathname: string): string {
+  if (pathname.includes("/why")) return "Why semant";
+  if (pathname.includes("/quickstart")) return "Quick Start";
+  if (pathname.includes("/wrap-component")) return "Wrap Your Own Component";
+  if (pathname.includes("/reference/api")) return "API Reference";
+  return "Documentation";
+}
 
 export function DocsLayout() {
+  const { pathname } = useLocation();
+  const title = pageTitle(pathname);
+
   return (
+    <SemanticProvider title={`semant docs — ${title}`} description="Documentation for the semant semantic protocol">
+      <SemanticHead />
+      <SemanticBridge />
+      <SemanticInfo role="documentation" title={title} meta={{ section: "docs", path: pathname }} />
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       {/* Top Nav */}
       <header
@@ -100,5 +115,6 @@ export function DocsLayout() {
         </main>
       </div>
     </div>
+    </SemanticProvider>
   );
 }

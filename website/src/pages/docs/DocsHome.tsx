@@ -22,7 +22,31 @@ function MiniDemo() {
               options={options}
               value={size}
               onChange={(v) => setSize(v as number)}
-            />
+            >
+              {({ options: opts, selected, select }) => (
+                <div style={{ display: "flex", gap: 6 }}>
+                  {opts.map((o) => (
+                    <button
+                      key={o.value}
+                      onClick={() => select(o.value)}
+                      style={{
+                        width: 40,
+                        height: 40,
+                        border: selected === o.value ? "2px solid var(--h-accent)" : "1px solid var(--h-border)",
+                        borderRadius: 8,
+                        background: selected === o.value ? "rgba(45,106,79,0.08)" : "#fff",
+                        color: selected === o.value ? "var(--h-accent)" : "var(--h-text)",
+                        fontWeight: selected === o.value ? 700 : 400,
+                        fontSize: 15,
+                        cursor: "pointer",
+                      }}
+                    >
+                      {o.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </SemanticSelect>
           </div>
         </div>
 
