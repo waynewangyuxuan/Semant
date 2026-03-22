@@ -1,5 +1,5 @@
 import React from "react";
-import { useSemantic } from "../core";
+import { useSemantic } from "../context";
 
 export interface SemanticInfoProps {
   /** Semantic role, e.g. "restaurant", "product", "article" */
@@ -16,9 +16,6 @@ export interface SemanticInfoProps {
 /**
  * A non-interactive semantic block. Use it to expose static
  * information (restaurant details, product specs, etc.) to AI.
- *
- * Wrap any visual content — the children render as-is for humans,
- * while the meta/title/description are exposed to the semantic layer.
  */
 export function SemanticInfo({
   role,

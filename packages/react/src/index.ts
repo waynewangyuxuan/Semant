@@ -1,25 +1,15 @@
-// ── Core ──
+// ── Re-export core (so users can import everything from @semant/react) ──
+export { SemanticStore, toPlainText, toLlmsTxt, toJsonLd, toJsonLdScript } from "@semant/core";
+export type { SemanticField, SemanticNode, SemanticPage } from "@semant/core";
+
+// ── React bindings ──
 export {
   SemanticProvider,
   useSemantic,
   useSemanticPage,
   useSemanticStore,
-  field,
-} from "./core";
-
-export type {
-  SemanticProviderProps,
-  UseSemanticOptions,
-  SemanticFieldType,
-  SemanticField,
-  SemanticNode,
-  SemanticPage,
-} from "./core";
-
-// ── Output Renderers ──
-export { toPlainText } from "./outputs/plaintext";
-export { toLlmsTxt } from "./outputs/llmstxt";
-export { toJsonLd, toJsonLdScript } from "./outputs/jsonld";
+} from "./context";
+export type { SemanticProviderProps, UseSemanticOptions } from "./context";
 
 // ── Reference Components ──
 export { SemanticSelect } from "./components/SemanticSelect";

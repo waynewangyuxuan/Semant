@@ -1,26 +1,7 @@
-import type { SemanticPage, SemanticField, SemanticNode } from "../core";
+import type { SemanticPage, SemanticField, SemanticNode } from "../types";
 
 /**
  * Render a SemanticPage as plain text that an AI can read and operate.
- *
- * Example output:
- *
- *   # Restaurant Booking
- *   > Book a table at Nōri Omakase
- *
- *   [Restaurant Info]
- *     name: Nōri Omakase
- *     cuisine: Japanese Omakase
- *
- *   [Form: Book a Table]
- *     [Select: party_size] options: 1-8, current: 4
- *     [DatePicker: date] range: today → +21d, current: 2026-03-28
- *     [Action: submit_booking] enabled: true
- *
- *   ## Commands
- *     set party_size <1-8>
- *     set date <YYYY-MM-DD>
- *     submit_booking
  */
 export function toPlainText(page: SemanticPage): string {
   const lines: string[] = [];
@@ -37,7 +18,6 @@ export function toPlainText(page: SemanticPage): string {
     lines.push(formatNode(node));
     lines.push("");
 
-    // Collect commands
     for (const field of node.fields) {
       if (field.type === "action" && field.execute) {
         commands.push(field.key);
@@ -67,14 +47,12 @@ function formatNode(node: SemanticNode): string {
     lines.push(`  ${node.description}`);
   }
 
-  // Meta
   if (node.meta) {
     for (const [k, v] of Object.entries(node.meta)) {
       lines.push(`  ${k}: ${formatValue(v)}`);
     }
   }
 
-  // Fields
   for (const field of node.fields) {
     lines.push(formatField(field));
   }
@@ -84,9 +62,10 @@ function formatNode(node: SemanticNode): string {
 
 function formatField(field: SemanticField): string {
   const parts: string[] = [];
+  const constraints = field.constraints ?? {};
 
   if (field.type === "action") {
-    const enabled = field.enabled !== false;
+    const enabled = constraints.enabled !== false;
     parts.push(`  [Action: ${field.key}] enabled: ${enabled}`);
     if (field.description) {
       parts.push(`    ${field.description}`);
@@ -97,11 +76,15 @@ function formatField(field: SemanticField): string {
   const typeLabel = field.type.charAt(0).toUpperCase() + field.type.slice(1);
   let line = `  [${typeLabel}: ${field.key}]`;
 
-  if (field.options && field.options.length > 0) {
-    line += ` options: [${field.options.join(", ")}]`;
+  const options = constraints.options as unknown[] | undefined;
+  if (options && options.length > 0) {
+    line += ` options: [${options.join(", ")}]`;
   }
-  if (field.min !== undefined || field.max !== undefined) {
-    line += ` range: ${field.min ?? "∞"}..${field.max ?? "∞"}`;
+
+  const min = constraints.min;
+  const max = constraints.max;
+  if (min !== undefined || max !== undefined) {
+    line += ` range: ${min ?? "\u221E"}..${max ?? "\u221E"}`;
   }
 
   line += ` current: ${formatValue(field.value)}`;
@@ -115,15 +98,22 @@ function formatField(field: SemanticField): string {
 }
 
 function formatOptionsHint(field: SemanticField): string {
-  if (field.options && field.options.length > 0) {
-    if (field.options.length <= 8) {
-      return `<${field.options.join("|")}>`;
+  const constraints = field.constraints ?? {};
+  const options = constraints.options as unknown[] | undefined;
+
+  if (options && options.length > 0) {
+    if (options.length <= 8) {
+      return `<${options.join("|")}>`;
     }
-    return `<${field.options[0]}..${field.options[field.options.length - 1]}>`;
+    return `<${options[0]}..${options[options.length - 1]}>`;
   }
-  if (field.min !== undefined && field.max !== undefined) {
-    return `<${field.min}-${field.max}>`;
+
+  const min = constraints.min;
+  const max = constraints.max;
+  if (min !== undefined && max !== undefined) {
+    return `<${min}-${max}>`;
   }
+
   return `<value>`;
 }
 

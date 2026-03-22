@@ -1,16 +1,12 @@
-import type { SemanticPage, SemanticNode, SemanticField } from "../core";
+import type { SemanticPage, SemanticNode, SemanticField } from "../types";
 
 /**
  * Generate JSON-LD structured data from a SemanticPage.
- *
- * Maps semantic nodes to schema.org types where possible,
- * and falls back to a generic WebPage + InteractionCounter pattern.
+ * Maps semantic nodes to schema.org types where possible.
  */
 export function toJsonLd(
   page: SemanticPage,
-  options?: {
-    baseUrl?: string;
-  }
+  options?: { baseUrl?: string }
 ): object {
   const baseUrl = options?.baseUrl ?? "";
 
@@ -23,14 +19,16 @@ export function toJsonLd(
     mainEntity: page.nodes.map((node) => nodeToSchema(node)),
   };
 
-  // Add interactive actions as potential actions
   const actions = collectActions(page);
   if (actions.length > 0) {
     jsonLd.potentialAction = actions.map((a) => ({
       "@type": "Action",
       name: a.key,
       description: a.description ?? a.label,
-      actionStatus: a.enabled !== false ? "PotentialActionStatus" : "DisabledActionStatus",
+      actionStatus:
+        a.constraints?.enabled !== false
+          ? "PotentialActionStatus"
+          : "DisabledActionStatus",
     }));
   }
 
@@ -38,7 +36,7 @@ export function toJsonLd(
 }
 
 /**
- * Convenience: returns the JSON-LD as a string ready to embed in a <script> tag.
+ * Returns the JSON-LD as a string ready to embed in a <script> tag.
  */
 export function toJsonLdScript(
   page: SemanticPage,
@@ -57,14 +55,12 @@ function nodeToSchema(node: SemanticNode): Record<string, unknown> {
     schema.description = node.description;
   }
 
-  // Map meta to schema properties
   if (node.meta) {
     for (const [k, v] of Object.entries(node.meta)) {
       schema[k] = v;
     }
   }
 
-  // Map fields
   const fieldData: Record<string, unknown> = {};
   for (const field of node.fields) {
     if (field.type !== "action") {
@@ -72,7 +68,9 @@ function nodeToSchema(node: SemanticNode): Record<string, unknown> {
         "@type": "PropertyValue",
         name: field.label,
         value: field.value,
-        ...(field.options ? { valueReference: field.options } : {}),
+        ...(field.constraints?.options
+          ? { valueReference: field.constraints.options }
+          : {}),
       };
     }
   }

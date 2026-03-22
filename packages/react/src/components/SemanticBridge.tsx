@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
-import { useSemanticPage, useSemanticStore } from "../core";
-import { toPlainText } from "../outputs/plaintext";
+import { useSemanticPage, useSemanticStore } from "../context";
+import { toPlainText } from "@semant/core";
 
 export interface SemanticBridgeProps {
-  /** ID of the hidden DOM node. Default: "semantic-state" */
+  /** ID of the hidden DOM node. Default: "__semant" */
   nodeId?: string;
   /** Global variable name. Default: "__semant" */
   globalName?: string;
@@ -11,30 +11,36 @@ export interface SemanticBridgeProps {
 
 /**
  * Two-in-one AI bridge:
- * 1. Renders a hidden DOM node with plain-text semantic state (for browser agents reading DOM)
- * 2. Exposes window[globalName] with getState() and execute() (for agents running JS)
- *
- * execute() returns a Promise that resolves with the updated state
- * after React has re-rendered, so agents can: await execute → read new state in one step.
+ * 1. Renders a hidden DOM node with plain-text semantic state
+ * 2. Exposes window[globalName] with getState(), getStructured(), execute(), fields(), version
  */
 export function SemanticBridge({
-  nodeId = "semantic-state",
+  nodeId = "__semant",
   globalName = "__semant",
 }: SemanticBridgeProps) {
   const page = useSemanticPage();
   const store = useSemanticStore();
   const plainText = toPlainText(page);
 
-  // Expose global JS API
   useEffect(() => {
     const api = {
+      version: "0.1.0",
       getState: () => toPlainText(store.getSnapshot()),
-      execute: (command: string): Promise<{ ok: boolean; message: string; state: string }> => {
+      getStructured: () => store.getSnapshot(),
+      fields: () => {
+        const snap = store.getSnapshot();
+        return snap.nodes.flatMap((n) => n.fields.map((f) => f.key));
+      },
+      execute: (
+        command: string
+      ): Promise<{ ok: boolean; message: string; state: string }> => {
         const result = store.execute(command);
         if (!result.ok) {
-          return Promise.resolve({ ...result, state: toPlainText(store.getSnapshot()) });
+          return Promise.resolve({
+            ...result,
+            state: toPlainText(store.getSnapshot()),
+          });
         }
-        // Wait for React to re-render and store to reflect the new state
         return new Promise((resolve) => {
           const timeout = setTimeout(() => {
             unsub();
@@ -59,7 +65,7 @@ export function SemanticBridge({
       id={nodeId}
       aria-hidden="true"
       style={{ display: "none" }}
-      data-semant="true"
+      data-semant-version="0.1.0"
     >
       {plainText}
     </div>

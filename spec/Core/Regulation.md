@@ -2,26 +2,33 @@
 
 ## Code Style
 - TypeScript strict mode. No `any` unless unavoidable (and commented why).
-- All public API must be exported from `src/index.ts` with both value and type exports.
+- All public API must be exported from each package's `src/index.ts` with both value and type exports.
+- `@semant/react` re-exports all of `@semant/core` so users can import everything from one place.
 - Components use named exports, not default exports.
 
 ## Architecture Rules
-- `src/outputs/` files are **pure functions** — no React imports, no side effects. Input: `SemanticPage`. Output: string.
-- `src/core.tsx` owns all types, the store, and hooks. Components import from `../core`, never the reverse.
-- Reference components in `src/components/` must use `useSemantic()` — they are examples of the hook pattern, not special-cased.
-- Zero runtime dependencies. React is a peer dependency.
+- `@semant/core` has **zero dependencies** and **no framework imports**. Pure JavaScript only.
+- `packages/core/src/outputs/` files are **pure functions** — no side effects. Input: `SemanticPage`. Output: string.
+- `packages/core/src/store.ts` owns the store. `packages/core/src/types.ts` owns all type definitions.
+- Reference components in `packages/react/src/components/` must use `useSemantic()` — they are examples of the hook pattern, not special-cased.
+- `SemanticField` uses open `constraints: Record<string, unknown>` — never add fixed fields like `options`, `min`, `max` to the interface.
+- The store does not validate commands. Validation is the developer's responsibility.
 
 ## Adding Components
 - Every new reference component needs: domain props, `useSemantic()` registration, default rendering, and `children` render prop for customization.
 - `SemanticAction` uses `render` prop instead of `children` (children is button content).
-- Register type and props export in `src/index.ts`.
+- Register type and props export in `packages/react/src/index.ts`.
 
 ## Adding Output Formats
-- New output format = new file in `src/outputs/`. Pure function signature: `(page: SemanticPage, options?) => string`.
-- Export from `src/index.ts`.
+- New output format = new file in `packages/core/src/outputs/`. Pure function signature: `(page: SemanticPage, options?) => string`.
+- Export from `packages/core/src/index.ts`.
+
+## Adding Framework Adapters
+- New adapter = new package in `packages/`. Thin wrapper around `@semant/core`'s `SemanticStore`.
+- Follow `@semant/react` as the reference implementation.
 
 ## Testing
-- No test framework set up yet. When added: test outputs as pure functions first (easiest), then component registration lifecycle.
+- No test framework set up yet. When added: test outputs as pure functions first (easiest), then store logic, then component registration lifecycle.
 
 ## Git
 - Conventional-ish commits. Keep them descriptive.

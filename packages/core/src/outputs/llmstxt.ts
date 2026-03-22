@@ -1,40 +1,26 @@
-import type { SemanticPage } from "../core";
+import type { SemanticPage } from "../types";
 
 /**
  * Generate an llms.txt-compatible output from a SemanticPage.
- *
- * Follows the llmstxt.org spec:
- * - H1 with project/page name
- * - Blockquote with summary
- * - Sections with key info
- * - Links to detailed resources
- *
- * For interactive pages, we extend the format with a Commands section
- * so AI agents know what operations are available.
+ * Follows the llmstxt.org spec.
  */
 export function toLlmsTxt(
   page: SemanticPage,
   options?: {
-    /** Base URL of the site */
     baseUrl?: string;
-    /** Additional links to include */
     links?: Array<{ title: string; url: string; description?: string }>;
   }
 ): string {
   const lines: string[] = [];
-  const baseUrl = options?.baseUrl ?? "";
 
-  // H1 — required
   lines.push(`# ${page.title}`);
   lines.push("");
 
-  // Blockquote — summary
   if (page.description) {
     lines.push(`> ${page.description}`);
     lines.push("");
   }
 
-  // Content sections
   for (const node of page.nodes) {
     lines.push(`## ${node.title ?? node.role}`);
 
@@ -42,7 +28,6 @@ export function toLlmsTxt(
       lines.push(node.description);
     }
 
-    // Metadata as key-value
     if (node.meta) {
       lines.push("");
       for (const [k, v] of Object.entries(node.meta)) {
@@ -50,7 +35,6 @@ export function toLlmsTxt(
       }
     }
 
-    // Interactive fields
     const interactiveFields = node.fields.filter(
       (f) => f.type !== "action" && f.set
     );
@@ -60,12 +44,13 @@ export function toLlmsTxt(
       lines.push("");
       lines.push("### Fields");
       for (const field of interactiveFields) {
+        const options = field.constraints?.options as unknown[] | undefined;
         let entry = `- **${field.label}** (\`${field.key}\`)`;
-        if (field.options?.length) {
-          entry += `: ${field.options.join(", ")}`;
+        if (options?.length) {
+          entry += `: ${options.join(", ")}`;
         }
         if (field.value !== null && field.value !== undefined) {
-          entry += ` — current: ${field.value}`;
+          entry += ` \u2014 current: ${field.value}`;
         }
         lines.push(entry);
       }
@@ -77,7 +62,7 @@ export function toLlmsTxt(
       for (const action of actions) {
         let entry = `- \`${action.key}\``;
         if (action.description) entry += `: ${action.description}`;
-        if (action.enabled === false) entry += " (disabled)";
+        if (action.constraints?.enabled === false) entry += " (disabled)";
         lines.push(entry);
       }
     }
@@ -85,7 +70,6 @@ export function toLlmsTxt(
     lines.push("");
   }
 
-  // Additional links
   if (options?.links?.length) {
     lines.push("## Resources");
     for (const link of options.links) {

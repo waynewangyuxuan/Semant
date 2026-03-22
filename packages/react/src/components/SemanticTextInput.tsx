@@ -1,5 +1,5 @@
 import React from "react";
-import { useSemantic } from "../core";
+import { useSemantic } from "../context";
 
 export interface SemanticTextInputProps {
   name: string;
@@ -10,7 +10,6 @@ export interface SemanticTextInputProps {
   type?: "text" | "email" | "tel" | "url" | "number";
   description?: string;
   className?: string;
-  /** Render prop for full custom rendering */
   children?: (props: {
     value: string;
     onChange: (value: string) => void;

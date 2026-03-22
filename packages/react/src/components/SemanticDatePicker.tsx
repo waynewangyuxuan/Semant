@@ -1,5 +1,5 @@
 import React from "react";
-import { useSemantic } from "../core";
+import { useSemantic } from "../context";
 
 export interface SemanticDatePickerProps {
   name: string;
@@ -38,8 +38,7 @@ export function SemanticDatePicker({
         label,
         type: "date",
         value,
-        min,
-        max,
+        constraints: { min, max },
         description: description ?? `Date range: ${min ?? "any"} to ${max ?? "any"}`,
         set: (v) => onChange(String(v)),
       },

@@ -1,5 +1,5 @@
 import React from "react";
-import { useSemantic } from "../core";
+import { useSemantic } from "../context";
 
 export interface SemanticSelectProps {
   /** Field key used in AI commands, e.g. "party_size" */
@@ -43,19 +43,17 @@ export function SemanticSelect({
         label,
         type: "select",
         value,
-        options: options.map((o) => o.value),
+        constraints: { options: options.map((o) => o.value) },
         description,
         set: (v) => onChange(v as string | number),
       },
     ],
   });
 
-  // If render prop is provided, use it
   if (children) {
     return <>{children({ options, selected: value, select: onChange })}</>;
   }
 
-  // Default render
   return (
     <div className={className}>
       <select

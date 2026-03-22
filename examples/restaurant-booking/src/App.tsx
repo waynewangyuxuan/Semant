@@ -10,7 +10,7 @@ import {
   SemanticBridge,
   useSemanticPage,
   toPlainText,
-} from "semant";
+} from "@semant/react";
 import "./App.css";
 
 function today() {

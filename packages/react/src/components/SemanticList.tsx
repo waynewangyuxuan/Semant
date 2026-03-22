@@ -1,15 +1,12 @@
 import React from "react";
-import { useSemantic } from "../core";
+import { useSemantic } from "../context";
 
 export interface SemanticListProps<T> {
   name: string;
   label: string;
   items: T[];
-  /** Extract a display label from each item */
   getLabel: (item: T) => string;
-  /** Extract a unique key from each item */
   getKey: (item: T) => string;
-  /** Optional: extract status/metadata per item */
   getMeta?: (item: T) => Record<string, unknown>;
   description?: string;
   order?: number;

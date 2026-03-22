@@ -1,5 +1,5 @@
 import React from "react";
-import { useSemantic } from "../core";
+import { useSemantic } from "../context";
 
 export interface SemanticActionProps {
   name: string;
@@ -39,7 +39,7 @@ export function SemanticAction({
         label,
         type: "action",
         value: null,
-        enabled,
+        constraints: { enabled, requires },
         description:
           description ??
           (requires?.length
