@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { SemanticProvider, SemanticSelect, useSemanticPage, toPlainText } from "@semant/react";
 
@@ -24,35 +24,12 @@ function MiniDemo() {
               onChange={(v) => setSize(v as number)}
             >
               {({ options: opts, selected, select }) => (
-                <select
-                  value={selected ?? ""}
-                  onChange={(e) => select(Number(e.target.value))}
-                  style={{
-                    width: "100%",
-                    padding: "10px 12px",
-                    fontSize: 14,
-                    fontFamily: "var(--font-body)",
-                    border: "1px solid var(--h-border)",
-                    borderRadius: 8,
-                    background: "#fff",
-                    color: "var(--h-text)",
-                    outline: "none",
-                    cursor: "pointer",
-                    WebkitAppearance: "none",
-                    MozAppearance: "none",
-                    appearance: "none",
-                    backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6b6b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")",
-                    backgroundRepeat: "no-repeat",
-                    backgroundPosition: "right 12px center",
-                    paddingRight: 36,
-                  }}
-                >
-                  {opts.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.label} {o.label === "1" ? "guest" : "guests"}
-                    </option>
-                  ))}
-                </select>
+                <CustomSelect
+                  options={opts}
+                  selected={selected}
+                  onSelect={select}
+                  format={(v) => `${v} ${Number(v) === 1 ? "guest" : "guests"}`}
+                />
               )}
             </SemanticSelect>
           </div>
@@ -134,6 +111,94 @@ export function DocsHome() {
           Why semant?
         </Link>
       </div>
+    </div>
+  );
+}
+
+function CustomSelect({
+  options,
+  selected,
+  onSelect,
+  format,
+}: {
+  options: Array<{ value: string | number; label: string }>;
+  selected: string | number | null;
+  onSelect: (value: string | number) => void;
+  format?: (value: string | number) => string;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const display = selected != null
+    ? (format ? format(selected) : options.find((o) => o.value === selected)?.label ?? String(selected))
+    : "Select...";
+
+  return (
+    <div ref={ref} style={{ position: "relative" }}>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          width: "100%",
+          padding: "10px 36px 10px 12px",
+          fontSize: 14,
+          fontFamily: "var(--font-body)",
+          border: "1px solid var(--h-border)",
+          borderRadius: 8,
+          background: "#fff",
+          color: "var(--h-text)",
+          cursor: "pointer",
+          textAlign: "left",
+          position: "relative",
+        }}
+      >
+        {display}
+        <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", fontSize: 10, color: "var(--h-text-secondary)" }}>
+          ▼
+        </span>
+      </button>
+      {open && (
+        <div
+          style={{
+            position: "absolute",
+            top: "calc(100% + 4px)",
+            left: 0,
+            right: 0,
+            background: "#fff",
+            border: "1px solid var(--h-border)",
+            borderRadius: 8,
+            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+            zIndex: 10,
+            overflow: "hidden",
+          }}
+        >
+          {options.map((o) => (
+            <div
+              key={o.value}
+              onClick={() => { onSelect(o.value); setOpen(false); }}
+              style={{
+                padding: "8px 12px",
+                fontSize: 14,
+                cursor: "pointer",
+                background: o.value === selected ? "rgba(45,106,79,0.06)" : "#fff",
+                color: o.value === selected ? "var(--h-accent)" : "var(--h-text)",
+                fontWeight: o.value === selected ? 600 : 400,
+              }}
+              onMouseEnter={(e) => { (e.target as HTMLDivElement).style.background = "rgba(45,106,79,0.06)"; }}
+              onMouseLeave={(e) => { (e.target as HTMLDivElement).style.background = o.value === selected ? "rgba(45,106,79,0.06)" : "#fff"; }}
+            >
+              {format ? format(o.value) : o.label}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
