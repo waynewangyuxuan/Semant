@@ -29,7 +29,7 @@ export const CommandTerminal = forwardRef<TerminalHandle>(function CommandTermin
 
   const executeCommand = async (cmd: string, source: "user" | "agent") => {
     const result = await store.execute(cmd);
-    setHistory((h) => [...h, { command: cmd, ok: result.ok, message: result.message, source }]);
+    setHistory((h) => [...h, { command: cmd, ok: result.ok, message: result.message, source }].slice(-7));
     pushLogEntry({ command: cmd, ok: result.ok, message: result.message });
   };
 

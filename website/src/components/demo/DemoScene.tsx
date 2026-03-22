@@ -36,18 +36,14 @@ export function DemoScene() {
     if (animatingRef.current) return;
     animatingRef.current = true;
 
-    while (!pausedRef.current) {
-      for (const step of DEMO_COMMANDS) {
-        if (pausedRef.current) break;
-        if (terminalRef.current) {
-          await terminalRef.current.agentExecute(step.cmd);
-        }
-        if (pausedRef.current) break;
-        await new Promise((r) => { timeoutRef.current = setTimeout(r, step.delay); });
+    // Run once, not in a loop
+    for (const step of DEMO_COMMANDS) {
+      if (pausedRef.current) break;
+      if (terminalRef.current) {
+        await terminalRef.current.agentExecute(step.cmd);
       }
       if (pausedRef.current) break;
-      // Wait before restarting the loop
-      await new Promise((r) => { timeoutRef.current = setTimeout(r, 2000); });
+      await new Promise((r) => { timeoutRef.current = setTimeout(r, step.delay); });
     }
 
     animatingRef.current = false;
