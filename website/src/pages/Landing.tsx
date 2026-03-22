@@ -1,10 +1,34 @@
+import { Link } from "react-router-dom";
 import { DemoScene } from "../components/demo/DemoScene";
-
-const BASE = import.meta.env.BASE_URL;
 
 export function Landing() {
   return (
     <div style={{ minHeight: "100vh" }}>
+      {/* Top Nav */}
+      <nav
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 32px",
+          height: 56,
+          borderBottom: "1px solid var(--h-border)",
+        }}
+      >
+        <span
+          className="heading"
+          style={{ fontSize: 18, fontWeight: 700, color: "var(--h-text)" }}
+        >
+          semant
+        </span>
+        <div style={{ display: "flex", gap: 20, fontSize: 14 }}>
+          <a href="#demo" style={{ color: "var(--h-text-secondary)", textDecoration: "none" }}>Demo</a>
+          <Link to="/docs" style={{ color: "var(--h-text)", textDecoration: "none", fontWeight: 500 }}>Docs</Link>
+          <a href="https://github.com/waynewangyuxuan/Semant" target="_blank" rel="noopener" style={{ color: "var(--h-text-secondary)", textDecoration: "none" }}>GitHub</a>
+          <a href="https://www.npmjs.com/package/@semant/react" target="_blank" rel="noopener" style={{ color: "var(--h-text-secondary)", textDecoration: "none" }}>npm</a>
+        </div>
+      </nav>
+
       {/* Screen 1: Hero */}
       <header
         style={{
@@ -93,20 +117,12 @@ export function Landing() {
           $ npm install @semant/react
         </code>
         <div style={{ marginTop: 24, display: "flex", gap: 16, justifyContent: "center" }}>
-          <a
-            href="https://github.com/waynewangyuxuan/Semant"
-            target="_blank"
-            rel="noopener"
-            style={{ color: "var(--h-accent)", fontWeight: 500 }}
+          <Link
+            to="/docs/quickstart"
+            style={{ color: "var(--h-accent)", fontWeight: 500, textDecoration: "none" }}
           >
-            View on GitHub
-          </a>
-          <a
-            href={`${BASE}docs`}
-            style={{ color: "var(--h-accent)", fontWeight: 500 }}
-          >
-            Read the Docs
-          </a>
+            Get Started →
+          </Link>
         </div>
       </footer>
     </div>
