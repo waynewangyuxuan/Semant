@@ -54,11 +54,20 @@ export function BookingScene() {
     fontSize: 14,
     fontFamily: "var(--font-body)",
     outline: "none",
+    background: "#fff",
+    color: "#333",
+  };
+
+  const dateStyle: React.CSSProperties = {
+    ...inputStyle,
+    colorScheme: "light",
+    cursor: "pointer",
   };
 
   const selectStyle: React.CSSProperties = {
     ...inputStyle,
     appearance: "auto" as const,
+    cursor: "pointer",
   };
 
   const labelStyle: React.CSSProperties = {
@@ -136,7 +145,7 @@ export function BookingScene() {
                   onChange={(e) => select(e.target.value || "")}
                   min={min}
                   max={max}
-                  style={inputStyle}
+                  style={dateStyle}
                 />
               )}
             </SemanticDatePicker>
@@ -159,7 +168,7 @@ export function BookingScene() {
                   onChange={(e) => select(e.target.value || "")}
                   min={min}
                   max={max}
-                  style={inputStyle}
+                  style={dateStyle}
                 />
               )}
             </SemanticDatePicker>
