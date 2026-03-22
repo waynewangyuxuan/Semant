@@ -1,46 +1,96 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, type FC } from "react";
 import { SemanticProvider } from "@semant/react";
 import { BookingScene } from "./scenes/BookingScene";
+import { MediumScene } from "./scenes/MediumScene";
+import { MapsScene } from "./scenes/MapsScene";
+import { ShopifyScene } from "./scenes/ShopifyScene";
 import { AIView } from "./AIView";
 import { AgentConsole } from "./AgentConsole";
 import { CommandTerminal, type TerminalHandle } from "./CommandTerminal";
 import { TokenCounter } from "./TokenCounter";
+import { clearLog } from "./executionLog";
 
-const TABS = [
-  { id: "geo", label: "GEO/SEO", badge: "Coming Soon" },
-  { id: "research", label: "Deep Research", badge: "Coming Soon" },
-  { id: "agentic", label: "Agentic", badge: null },
-  { id: "structured", label: "Structured Data", badge: "Coming Soon" },
-] as const;
+interface SceneConfig {
+  id: string;
+  label: string;
+  title: string;
+  description: string;
+  commands: { cmd: string; delay: number }[];
+  Component: FC;
+}
 
-type TabId = (typeof TABS)[number]["id"];
-
-/** Command-driven animation sequence */
-const DEMO_COMMANDS = [
-  { cmd: 'set destination "San Diego, CA"', delay: 1200 },
-  { cmd: "set check_in 2026-04-15", delay: 1000 },
-  { cmd: "set check_out 2026-04-18", delay: 1000 },
-  { cmd: "set guests 2", delay: 800 },
-  { cmd: "set rooms 1", delay: 800 },
-  { cmd: "search_hotels", delay: 2500 },
-  { cmd: "book_hotel", delay: 3000 },
+const SCENES: SceneConfig[] = [
+  {
+    id: "geo",
+    label: "GEO/SEO",
+    title: "Tech Article",
+    description: "A Medium-style article with semantic metadata",
+    commands: [
+      { cmd: "bookmark_article", delay: 1500 },
+      { cmd: "share_article", delay: 2000 },
+    ],
+    Component: MediumScene,
+  },
+  {
+    id: "research",
+    label: "Deep Research",
+    title: "Location Search",
+    description: "Search and filter restaurants on a map",
+    commands: [
+      { cmd: 'set query "ramen near me"', delay: 1000 },
+      { cmd: "set cuisine Japanese", delay: 800 },
+      { cmd: "set price $$", delay: 800 },
+      { cmd: "set min_rating 4.0", delay: 800 },
+      { cmd: "select_result 1", delay: 2000 },
+    ],
+    Component: MapsScene,
+  },
+  {
+    id: "agentic",
+    label: "Agentic",
+    title: "Hotel Search",
+    description: "Search and book hotels on Booking.com",
+    commands: [
+      { cmd: 'set destination "San Diego, CA"', delay: 1200 },
+      { cmd: "set check_in 2026-04-15", delay: 1000 },
+      { cmd: "set check_out 2026-04-18", delay: 1000 },
+      { cmd: "set guests 2", delay: 800 },
+      { cmd: "set rooms 1", delay: 800 },
+      { cmd: "search_hotels", delay: 2500 },
+      { cmd: "book_hotel", delay: 3000 },
+    ],
+    Component: BookingScene,
+  },
+  {
+    id: "structured",
+    label: "Structured Data",
+    title: "Product Page",
+    description: "Shopify product page with live structured data",
+    commands: [
+      { cmd: 'set color "Forest Green"', delay: 1200 },
+      { cmd: "set size L", delay: 1000 },
+      { cmd: "set quantity 2", delay: 1000 },
+      { cmd: "add_to_cart", delay: 2000 },
+    ],
+    Component: ShopifyScene,
+  },
 ];
 
 export function DemoScene() {
-  const [activeTab, setActiveTab] = useState<TabId>("agentic");
+  const [activeIdx, setActiveIdx] = useState(2); // default to Agentic
+  const scene = SCENES[activeIdx];
   const terminalRef = useRef<TerminalHandle>(null);
   const cancelledRef = useRef(false);
-  const doneRef = useRef(false);
 
+  // Run animation for current scene
   useEffect(() => {
     cancelledRef.current = false;
-    doneRef.current = false;
+    clearLog();
 
     const run = async () => {
-      // Wait before starting
       await new Promise((r) => setTimeout(r, 1500));
 
-      for (const step of DEMO_COMMANDS) {
+      for (const step of scene.commands) {
         if (cancelledRef.current) return;
         if (terminalRef.current) {
           await terminalRef.current.agentExecute(step.cmd);
@@ -48,17 +98,23 @@ export function DemoScene() {
         if (cancelledRef.current) return;
         await new Promise((r) => setTimeout(r, step.delay));
       }
-      doneRef.current = true;
     };
 
     run();
 
     return () => { cancelledRef.current = true; };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeIdx]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleUserInteract = useCallback(() => {
     cancelledRef.current = true;
   }, []);
+
+  const handleTabSwitch = useCallback((idx: number) => {
+    cancelledRef.current = true;
+    setActiveIdx(idx);
+  }, []);
+
+  const ActiveComponent = scene.Component;
 
   return (
     <div style={{ borderRadius: "var(--h-radius)", overflow: "hidden", border: "1px solid var(--h-border)" }}>
@@ -71,44 +127,30 @@ export function DemoScene() {
           borderBottom: "1px solid var(--h-border)",
         }}
       >
-        {TABS.map((tab) => (
+        {SCENES.map((s, i) => (
           <button
-            key={tab.id}
-            onClick={() => !tab.badge && setActiveTab(tab.id)}
+            key={s.id}
+            onClick={() => handleTabSwitch(i)}
             style={{
               flex: 1,
               padding: "12px 16px",
               border: "none",
-              background: activeTab === tab.id ? "var(--h-card-bg)" : "transparent",
-              color: tab.badge ? "var(--h-text-secondary)" : "var(--h-text)",
+              background: activeIdx === i ? "var(--h-card-bg)" : "transparent",
+              color: "var(--h-text)",
               fontFamily: "var(--font-mono)",
               fontSize: 13,
-              fontWeight: activeTab === tab.id ? 600 : 400,
-              cursor: tab.badge ? "default" : "pointer",
-              borderBottom: activeTab === tab.id ? "2px solid var(--h-accent)" : "2px solid transparent",
-              opacity: tab.badge ? 0.5 : 1,
-              position: "relative",
+              fontWeight: activeIdx === i ? 600 : 400,
+              cursor: "pointer",
+              borderBottom: activeIdx === i ? "2px solid var(--h-accent)" : "2px solid transparent",
             }}
           >
-            {tab.label}
-            {tab.badge && (
-              <span
-                style={{
-                  display: "block",
-                  fontSize: 10,
-                  color: "var(--h-text-secondary)",
-                  fontWeight: 400,
-                }}
-              >
-                {tab.badge}
-              </span>
-            )}
+            {s.label}
           </button>
         ))}
       </div>
 
       {/* Demo Content */}
-      <SemanticProvider title="Hotel Search" description="Search and book hotels on Booking.com">
+      <SemanticProvider title={scene.title} description={scene.description}>
         <div
           style={{ display: "flex", minHeight: 480 }}
           onClick={handleUserInteract}
@@ -124,20 +166,7 @@ export function DemoScene() {
               overflow: "auto",
             }}
           >
-            {activeTab === "agentic" && <BookingScene />}
-            {activeTab !== "agentic" && (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  height: "100%",
-                  color: "var(--h-text-secondary)",
-                }}
-              >
-                Coming Soon
-              </div>
-            )}
+            <ActiveComponent />
           </div>
 
           {/* AI View */}

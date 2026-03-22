@@ -19,6 +19,11 @@ export function pushLogEntry(entry: Omit<LogEntry, "timestamp">) {
   emit();
 }
 
+export function clearLog() {
+  entries = [];
+  emit();
+}
+
 export function useExecutionLog(): LogEntry[] {
   const subscribe = useCallback((cb: () => void) => {
     listeners.push(cb);
