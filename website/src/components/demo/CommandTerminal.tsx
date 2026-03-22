@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useSemanticStore } from "@semant/react";
+import { pushLogEntry } from "./executionLog";
 
 interface HistoryEntry {
   command: string;
@@ -27,6 +28,7 @@ export function CommandTerminal() {
 
     const result = await store.execute(cmd);
     setHistory((h) => [...h, { command: cmd, ok: result.ok, message: result.message }]);
+    pushLogEntry({ command: cmd, ok: result.ok, message: result.message });
     setInput("");
   };
 

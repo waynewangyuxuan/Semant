@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useSemanticPage } from "@semant/react";
 import type { SemanticNode, SemanticField } from "@semant/react";
+import { useExecutionLog } from "./executionLog";
 
 export function AIView() {
   const page = useSemanticPage();
@@ -43,6 +44,8 @@ export function AIView() {
     };
   }, []);
 
+  const log = useExecutionLog();
+
   // Separate fields from actions, and extract semantic state vs commands
   const stateNodes = page.nodes.filter((n) => n.role !== "Action");
   const actions = allFields
@@ -73,6 +76,51 @@ export function AIView() {
           <NodeBlock key={node.id} node={node} changedKeys={changedKeys} />
         ))}
       </div>
+
+      {/* ── EXECUTION LOG (inside state panel) ── */}
+      {log.length > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <div
+            style={{
+              fontSize: 11,
+              color: "var(--a-text-secondary)",
+              textTransform: "uppercase",
+              letterSpacing: 1,
+              marginBottom: 8,
+              paddingTop: 10,
+              borderTop: "1px dashed var(--a-border)",
+            }}
+          >
+            Execution Log
+          </div>
+          {log.slice(-5).map((entry, i) => (
+            <div
+              key={entry.timestamp + i}
+              style={{
+                marginBottom: 6,
+                padding: "4px 8px",
+                borderRadius: 4,
+                background: entry.ok ? "rgba(74, 222, 128, 0.08)" : "rgba(248, 113, 113, 0.08)",
+                borderLeft: `3px solid ${entry.ok ? "#4ade80" : "#f87171"}`,
+              }}
+            >
+              <div>
+                <span style={{ color: "var(--a-text-secondary)" }}>{">"} </span>
+                <span style={{ color: "var(--a-text)" }}>{entry.command}</span>
+              </div>
+              <div
+                style={{
+                  color: entry.ok ? "#4ade80" : "#f87171",
+                  fontSize: 11,
+                  paddingLeft: 14,
+                }}
+              >
+                {entry.ok ? "✓" : "✗"} {entry.message}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* ── COMMANDS SECTION ── */}
       {(settableFields.length > 0 || actions.length > 0) && (
