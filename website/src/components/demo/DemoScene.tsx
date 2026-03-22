@@ -29,47 +29,36 @@ const DEMO_COMMANDS = [
 export function DemoScene() {
   const [activeTab, setActiveTab] = useState<TabId>("agentic");
   const terminalRef = useRef<TerminalHandle>(null);
-  const animatingRef = useRef(false);
-  const pausedRef = useRef(false);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const cancelledRef = useRef(false);
+  const doneRef = useRef(false);
 
-  const runAnimation = useCallback(async () => {
-    if (animatingRef.current) return;
-    animatingRef.current = true;
-
-    // Run once, not in a loop
-    for (const step of DEMO_COMMANDS) {
-      if (pausedRef.current) break;
-      if (terminalRef.current) {
-        await terminalRef.current.agentExecute(step.cmd);
-      }
-      if (pausedRef.current) break;
-      await new Promise((r) => { timeoutRef.current = setTimeout(r, step.delay); });
-    }
-
-    animatingRef.current = false;
-  }, []);
-
-  // Start animation on mount
   useEffect(() => {
-    const startTimer = setTimeout(() => runAnimation(), 1500);
-    return () => {
-      clearTimeout(startTimer);
-      pausedRef.current = true;
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, [runAnimation]);
+    cancelledRef.current = false;
+    doneRef.current = false;
 
-  // Pause on user interaction, resume after idle
+    const run = async () => {
+      // Wait before starting
+      await new Promise((r) => setTimeout(r, 1500));
+
+      for (const step of DEMO_COMMANDS) {
+        if (cancelledRef.current) return;
+        if (terminalRef.current) {
+          await terminalRef.current.agentExecute(step.cmd);
+        }
+        if (cancelledRef.current) return;
+        await new Promise((r) => setTimeout(r, step.delay));
+      }
+      doneRef.current = true;
+    };
+
+    run();
+
+    return () => { cancelledRef.current = true; };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleUserInteract = useCallback(() => {
-    pausedRef.current = true;
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    // Resume after 8 seconds of inactivity
-    timeoutRef.current = setTimeout(() => {
-      pausedRef.current = false;
-      runAnimation();
-    }, 8000);
-  }, [runAnimation]);
+    cancelledRef.current = true;
+  }, []);
 
   return (
     <div style={{ borderRadius: "var(--h-radius)", overflow: "hidden", border: "1px solid var(--h-border)" }}>

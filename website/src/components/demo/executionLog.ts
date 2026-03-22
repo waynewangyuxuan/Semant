@@ -15,7 +15,7 @@ function emit() {
 }
 
 export function pushLogEntry(entry: Omit<LogEntry, "timestamp">) {
-  entries = [...entries, { ...entry, timestamp: Date.now() }];
+  entries = [...entries, { ...entry, timestamp: Date.now() }].slice(-10);
   emit();
 }
 
