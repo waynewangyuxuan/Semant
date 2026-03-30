@@ -1,6 +1,6 @@
 // ── Re-export core (so users can import everything from @semant/react) ──
-export { SemanticStore, toPlainText, toLlmsTxt, toJsonLd, toJsonLdScript } from "@semant/core";
-export type { SemanticField, SemanticNode, SemanticPage } from "@semant/core";
+export { SemanticStore, toPlainText, toLlmsTxt, toJsonLd, toJsonLdScript, toMCPTools } from "@semant/core";
+export type { SemanticField, SemanticNode, SemanticPage, MCPToolDefinition, ToMCPToolsOptions } from "@semant/core";
 
 // ── React bindings ──
 export {
