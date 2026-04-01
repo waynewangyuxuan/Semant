@@ -1,7 +1,7 @@
 {
-  "name": "@semant/core",
+  "name": "@semant/mcp",
   "version": "0.1.0",
-  "description": "Semantic protocol core — framework-agnostic store, types, and output renderers",
+  "description": "MCP (Model Context Protocol) server for semant semantic pages",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -17,12 +17,14 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "test": "vitest run",
     "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@semant/core": "0.1.0",
+    "@modelcontextprotocol/sdk": "^1.12.0"
   },
   "devDependencies": {
     "tsup": "^8.0.0",
-    "typescript": "^5.4.0",
-    "vitest": "^3.0.0"
+    "typescript": "^5.4.0"
   }
 }
