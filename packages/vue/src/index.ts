@@ -1,0 +1,32 @@
+// ── Re-export core (so users can import everything from @semant/vue) ──
+export { SemanticStore, toPlainText, toLlmsTxt, toJsonLd, toJsonLdScript, toMCPTools } from "@semant/core";
+export type { SemanticField, SemanticNode, SemanticPage, MCPToolDefinition, ToMCPToolsOptions } from "@semant/core";
+
+// ── Vue composables ──
+export {
+  useSemantic,
+  useSemanticPage,
+  useSemanticStore,
+  SEMANT_KEY,
+} from "./context";
+export type { UseSemanticOptions } from "./context";
+
+// ── Delivery Components ──
+export { SemanticProvider } from "./components/SemanticProvider";
+export { SemanticHead } from "./components/SemanticHead";
+export { SemanticBridge } from "./components/SemanticBridge";
+
+// ── Reference Components ──
+export { SemanticSelect } from "./components/SemanticSelect";
+export { SemanticTextInput } from "./components/SemanticTextInput";
+export { SemanticAction } from "./components/SemanticAction";
+export { SemanticCheckbox } from "./components/SemanticCheckbox";
+
+// ── Component prop types ──
+export type { SemanticProviderProps } from "./components/SemanticProvider";
+export type { SemanticHeadProps } from "./components/SemanticHead";
+export type { SemanticBridgeProps } from "./components/SemanticBridge";
+export type { SemanticSelectProps } from "./components/SemanticSelect";
+export type { SemanticTextInputProps } from "./components/SemanticTextInput";
+export type { SemanticActionProps } from "./components/SemanticAction";
+export type { SemanticCheckboxProps } from "./components/SemanticCheckbox";
