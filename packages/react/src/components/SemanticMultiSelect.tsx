@@ -54,7 +54,7 @@ export function SemanticMultiSelect({
         constraints: { options: options.map((o) => o.value) },
         description,
         set: (v) => {
-          // AI sends JSON array string or single value
+          // Try JSON array string first (e.g. '["a","b"]')
           if (typeof v === "string") {
             try {
               const parsed = JSON.parse(v);
@@ -63,13 +63,16 @@ export function SemanticMultiSelect({
                 return;
               }
             } catch {
-              // not JSON, treat as single value
+              // not JSON — wrap single value as array
             }
+            onChange([v]);
+            return;
           }
           if (Array.isArray(v)) {
             onChange(v as Array<string | number>);
           } else {
-            toggle(v as string | number);
+            // Single non-string value — wrap as array (set semantics, not toggle)
+            onChange([v as string | number]);
           }
         },
       },

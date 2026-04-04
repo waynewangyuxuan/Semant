@@ -17,7 +17,7 @@ export interface SemanticCheckboxProps {
   /** Render prop for full custom rendering */
   children?: (props: {
     checked: boolean;
-    toggle: () => void;
+    set: (value: boolean) => void;
   }) => React.ReactNode;
 }
 
@@ -40,13 +40,13 @@ export function SemanticCheckbox({
         type: "checkbox",
         value: checked,
         description,
-        set: (v) => onChange(Boolean(v)),
+        set: (v) => onChange(v === true || v === "true" || v === 1),
       },
     ],
   });
 
   if (children) {
-    return <>{children({ checked, toggle: () => onChange(!checked) })}</>;
+    return <>{children({ checked, set: onChange })}</>;
   }
 
   return (
