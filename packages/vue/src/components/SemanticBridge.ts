@@ -1,4 +1,4 @@
-import { defineComponent, h, onMounted, onUnmounted, type PropType } from "vue";
+import { defineComponent, h, watch, onMounted, onUnmounted, type PropType } from "vue";
 import { toPlainText } from "@semant/core";
 import { useSemanticPage, useSemanticStore } from "../context";
 
@@ -18,8 +18,8 @@ export const SemanticBridge = defineComponent({
     const page = useSemanticPage();
     const store = useSemanticStore();
 
-    onMounted(() => {
-      const api = {
+    function createApi() {
+      return {
         version: "0.1.0",
         getState: () => toPlainText(store.getSnapshot()),
         getStructured: () => store.getSnapshot(),
@@ -56,8 +56,20 @@ export const SemanticBridge = defineComponent({
           });
         },
       };
-      (window as any)[props.globalName] = api;
+    }
+
+    onMounted(() => {
+      (window as any)[props.globalName] = createApi();
     });
+
+    // Re-register under new key if globalName changes
+    watch(
+      () => props.globalName,
+      (newName, oldName) => {
+        if (oldName) delete (window as any)[oldName];
+        (window as any)[newName] = createApi();
+      }
+    );
 
     onUnmounted(() => {
       delete (window as any)[props.globalName];
