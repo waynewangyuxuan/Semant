@@ -21,6 +21,10 @@ export { SemanticSelect } from "./components/SemanticSelect";
 export { SemanticTextInput } from "./components/SemanticTextInput";
 export { SemanticAction } from "./components/SemanticAction";
 export { SemanticCheckbox } from "./components/SemanticCheckbox";
+export { SemanticSlider } from "./components/SemanticSlider";
+export { SemanticTextarea } from "./components/SemanticTextarea";
+export { SemanticRadioGroup } from "./components/SemanticRadioGroup";
+export { SemanticMultiSelect } from "./components/SemanticMultiSelect";
 
 // ── Component prop types ──
 export type { SemanticProviderProps } from "./components/SemanticProvider";
@@ -30,3 +34,7 @@ export type { SemanticSelectProps } from "./components/SemanticSelect";
 export type { SemanticTextInputProps } from "./components/SemanticTextInput";
 export type { SemanticActionProps } from "./components/SemanticAction";
 export type { SemanticCheckboxProps } from "./components/SemanticCheckbox";
+export type { SemanticSliderProps } from "./components/SemanticSlider";
+export type { SemanticTextareaProps } from "./components/SemanticTextarea";
+export type { SemanticRadioGroupProps } from "./components/SemanticRadioGroup";
+export type { SemanticMultiSelectProps } from "./components/SemanticMultiSelect";
