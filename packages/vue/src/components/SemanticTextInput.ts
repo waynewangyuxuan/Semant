@@ -19,7 +19,7 @@ export const SemanticTextInput = defineComponent({
     change: (_value: string) => true,
   },
   setup(props, { slots, emit }) {
-    useSemantic({
+    useSemantic(() => ({
       role: "Field",
       title: props.label,
       fields: [
@@ -32,7 +32,7 @@ export const SemanticTextInput = defineComponent({
           set: (v) => emit("change", String(v)),
         },
       ],
-    });
+    }));
 
     return () => {
       if (slots.default) {

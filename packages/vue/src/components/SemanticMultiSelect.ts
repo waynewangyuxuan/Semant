@@ -29,7 +29,7 @@ export const SemanticMultiSelect = defineComponent({
       }
     };
 
-    useSemantic({
+    useSemantic(() => ({
       role: "Field",
       title: props.label,
       fields: [
@@ -41,6 +41,7 @@ export const SemanticMultiSelect = defineComponent({
           constraints: { options: props.options.map((o) => o.value) },
           description: props.description,
           set: (v) => {
+            // Try JSON array string first (e.g. '["a","b"]')
             if (typeof v === "string") {
               try {
                 const parsed = JSON.parse(v);
@@ -49,18 +50,21 @@ export const SemanticMultiSelect = defineComponent({
                   return;
                 }
               } catch {
-                // not JSON, treat as single value
+                // not JSON — wrap single value as array
               }
+              emit("change", [v]);
+              return;
             }
             if (Array.isArray(v)) {
               emit("change", v as Array<string | number>);
             } else {
-              toggle(v as string | number);
+              // Single non-string value — wrap as array (set semantics, not toggle)
+              emit("change", [v as string | number]);
             }
           },
         },
       ],
-    });
+    }));
 
     return () => {
       if (slots.default) {

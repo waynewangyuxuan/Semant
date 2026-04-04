@@ -1,4 +1,4 @@
-import { defineComponent, h, type PropType } from "vue";
+import { defineComponent, h, type PropType, type DefineComponent } from "vue";
 import { useSemantic } from "../context";
 
 export const SemanticList = defineComponent({
@@ -24,8 +24,8 @@ export const SemanticList = defineComponent({
     class: { type: String as PropType<string>, default: undefined },
   },
   setup(props, { slots }) {
-    const itemDescriptions = () =>
-      props.items.map((item) => {
+    useSemantic(() => {
+      const itemDescriptions = props.items.map((item) => {
         const meta = props.getMeta?.(item);
         const metaStr = meta
           ? " " +
@@ -35,17 +35,17 @@ export const SemanticList = defineComponent({
           : "";
         return `${props.getLabel(item)}${metaStr}`;
       });
-
-    useSemantic({
-      role: "List",
-      title: props.label,
-      description: props.description,
-      meta: {
-        count: props.items.length,
-        items: itemDescriptions(),
-      },
-      fields: [],
-      order: props.order,
+      return {
+        role: "List",
+        title: props.label,
+        description: props.description,
+        meta: {
+          count: props.items.length,
+          items: itemDescriptions,
+        },
+        fields: [],
+        order: props.order,
+      };
     });
 
     return () => {
@@ -64,4 +64,15 @@ export const SemanticList = defineComponent({
   },
 });
 
-export type SemanticListProps = InstanceType<typeof SemanticList>["$props"];
+/** Typed props interface for SemanticList. Use with generic item types. */
+export interface SemanticListProps<T = unknown> {
+  name: string;
+  label: string;
+  items: T[];
+  getLabel: (item: T) => string;
+  getKey: (item: T) => string;
+  getMeta?: (item: T) => Record<string, unknown>;
+  description?: string;
+  order?: number;
+  class?: string;
+}

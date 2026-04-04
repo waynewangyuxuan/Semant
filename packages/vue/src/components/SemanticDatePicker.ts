@@ -19,7 +19,7 @@ export const SemanticDatePicker = defineComponent({
     change: (_date: string) => true,
   },
   setup(props, { slots, emit }) {
-    useSemantic({
+    useSemantic(() => ({
       role: "Field",
       title: props.label,
       fields: [
@@ -35,7 +35,7 @@ export const SemanticDatePicker = defineComponent({
           set: (v) => emit("change", String(v)),
         },
       ],
-    });
+    }));
 
     return () => {
       if (slots.default) {

@@ -17,7 +17,7 @@ export const SemanticSlider = defineComponent({
     change: (_value: number) => true,
   },
   setup(props, { slots, emit }) {
-    useSemantic({
+    useSemantic(() => ({
       role: "Field",
       title: props.label,
       fields: [
@@ -31,7 +31,7 @@ export const SemanticSlider = defineComponent({
           set: (v) => emit("change", Number(v)),
         },
       ],
-    });
+    }));
 
     return () => {
       if (slots.default) {

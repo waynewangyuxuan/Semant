@@ -14,7 +14,7 @@ export const SemanticCheckbox = defineComponent({
     change: (_checked: boolean) => true,
   },
   setup(props, { slots, emit }) {
-    useSemantic({
+    useSemantic(() => ({
       role: "Field",
       title: props.label,
       fields: [
@@ -24,16 +24,16 @@ export const SemanticCheckbox = defineComponent({
           type: "checkbox",
           value: props.checked,
           description: props.description,
-          set: (v) => emit("change", Boolean(v)),
+          set: (v) => emit("change", v === true || v === "true" || v === 1),
         },
       ],
-    });
+    }));
 
     return () => {
       if (slots.default) {
         return slots.default({
           checked: props.checked,
-          toggle: () => emit("change", !props.checked),
+          set: (value: boolean) => emit("change", value),
         });
       }
 

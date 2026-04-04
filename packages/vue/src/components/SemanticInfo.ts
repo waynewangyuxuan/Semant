@@ -15,14 +15,14 @@ export const SemanticInfo = defineComponent({
     class: { type: String as PropType<string>, default: undefined },
   },
   setup(props, { slots }) {
-    useSemantic({
+    useSemantic(() => ({
       role: props.role,
       title: props.title,
       description: props.description,
       meta: props.meta,
       fields: [],
       order: props.order,
-    });
+    }));
 
     return () => h("div", { class: props.class }, slots.default?.());
   },

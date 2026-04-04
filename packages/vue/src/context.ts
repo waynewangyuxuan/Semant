@@ -57,10 +57,14 @@ export interface UseSemanticOptions {
 }
 
 /**
- * Register a semantic node. Call this in any component's setup() to make it
- * self-describing. Returns the store for advanced usage.
+ * Register a semantic node. Accepts either a plain options object or a
+ * getter function that returns options. The getter form is required when
+ * options depend on reactive props — Vue's watchEffect will track the
+ * reads inside the getter and re-register when they change.
  */
-export function useSemantic(options: UseSemanticOptions): {
+export function useSemantic(
+  optionsOrGetter: UseSemanticOptions | (() => UseSemanticOptions)
+): {
   id: string;
   store: SemanticStore;
 } {
@@ -71,13 +75,20 @@ export function useSemantic(options: UseSemanticOptions): {
     );
   }
 
-  const id = options.id ?? generateId();
+  const resolve =
+    typeof optionsOrGetter === "function" ? optionsOrGetter : () => optionsOrGetter;
+
+  // Resolve once eagerly to extract the stable ID
+  const initial = resolve();
+  const id = initial.id ?? generateId();
 
   // Register after every render via watchEffect with flush: 'post'
   // to match React's useEffect post-render timing.
+  // The getter is called inside watchEffect so Vue tracks reactive deps.
   // Store's shallowEqualNode deduplicates redundant registers.
   watchEffect(
     () => {
+      const options = resolve();
       const node: SemanticNode = {
         id,
         role: options.role,

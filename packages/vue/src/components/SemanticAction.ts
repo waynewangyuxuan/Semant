@@ -19,7 +19,7 @@ export const SemanticAction = defineComponent({
     class: { type: String as PropType<string>, default: undefined },
   },
   setup(props, { slots }) {
-    useSemantic({
+    useSemantic(() => ({
       role: "Action",
       title: props.label,
       fields: [
@@ -37,7 +37,7 @@ export const SemanticAction = defineComponent({
           execute: props.onExecute,
         },
       ],
-    });
+    }));
 
     return () => {
       // "render" slot for full custom rendering (matches React's render prop)

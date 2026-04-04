@@ -21,7 +21,7 @@ export const SemanticSelect = defineComponent({
     change: (_value: string | number) => true,
   },
   setup(props, { slots, emit }) {
-    useSemantic({
+    useSemantic(() => ({
       role: "Field",
       title: props.label,
       fields: [
@@ -35,7 +35,7 @@ export const SemanticSelect = defineComponent({
           set: (v) => emit("change", v as string | number),
         },
       ],
-    });
+    }));
 
     return () => {
       if (slots.default) {

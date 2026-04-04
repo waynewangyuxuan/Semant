@@ -17,23 +17,24 @@ export const SemanticTextarea = defineComponent({
     change: (_value: string) => true,
   },
   setup(props, { slots, emit }) {
-    const constraints: Record<string, unknown> = {};
-    if (props.maxLength !== undefined) constraints.maxLength = props.maxLength;
-
-    useSemantic({
-      role: "Field",
-      title: props.label,
-      fields: [
-        {
-          key: props.name,
-          label: props.label,
-          type: "textarea",
-          value: props.value,
-          constraints: Object.keys(constraints).length > 0 ? constraints : undefined,
-          description: props.description,
-          set: (v) => emit("change", String(v)),
-        },
-      ],
+    useSemantic(() => {
+      const constraints: Record<string, unknown> = {};
+      if (props.maxLength !== undefined) constraints.maxLength = props.maxLength;
+      return {
+        role: "Field",
+        title: props.label,
+        fields: [
+          {
+            key: props.name,
+            label: props.label,
+            type: "textarea",
+            value: props.value,
+            constraints: Object.keys(constraints).length > 0 ? constraints : undefined,
+            description: props.description,
+            set: (v) => emit("change", String(v)),
+          },
+        ],
+      };
     });
 
     return () => {
