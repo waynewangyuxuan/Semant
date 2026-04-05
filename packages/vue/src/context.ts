@@ -11,6 +11,8 @@ import {
 import { SemanticStore } from "@semant/core";
 import type { SemanticField, SemanticNode, SemanticPage } from "@semant/core";
 
+const isServer = typeof window === "undefined";
+
 // ── Context ──
 
 interface SemanticContextValue {
@@ -82,7 +84,23 @@ export function useSemantic(
   const initial = resolve();
   const id = initial.id ?? generateId();
 
-  // Register after every render via watchEffect with flush: 'post'
+  // During SSR, watchEffect with flush:'post' never runs.
+  // Register eagerly so SemanticHead has nodes for JSON-LD.
+  if (isServer) {
+    const options = resolve();
+    const node: SemanticNode = {
+      id,
+      role: options.role,
+      title: options.title,
+      description: options.description,
+      meta: options.meta,
+      fields: options.fields,
+      order: options.order,
+    };
+    ctx.store.register(node);
+  }
+
+  // On client, register after render via watchEffect with flush: 'post'
   // to match React's useEffect post-render timing.
   // The getter is called inside watchEffect so Vue tracks reactive deps.
   // Store's shallowEqualNode deduplicates redundant registers.
@@ -123,6 +141,14 @@ export function useSemanticPage(): Readonly<Ref<SemanticPage>> {
 
   const page = shallowRef<SemanticPage>(ctx.store.getSnapshot());
   let unsub: (() => void) | null = null;
+
+  // During SSR, onMounted never fires. Subscribe eagerly so nodes
+  // registered by child setup() calls are visible when SemanticHead renders.
+  if (isServer) {
+    unsub = ctx.store.subscribe(() => {
+      page.value = ctx.store.getSnapshot();
+    });
+  }
 
   onMounted(() => {
     // Sync initial state (may have changed between setup and mount)

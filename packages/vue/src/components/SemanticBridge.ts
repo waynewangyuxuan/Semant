@@ -84,7 +84,9 @@ export const SemanticBridge = defineComponent({
           style: { display: "none" },
           "data-semant-version": "0.1.0",
         },
-        toPlainText(page.value)
+        // Read from store directly to get the latest state,
+        // including nodes registered by sibling setup() calls during SSR.
+        toPlainText(store.getSnapshot())
       );
   },
 });
