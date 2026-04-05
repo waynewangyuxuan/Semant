@@ -10,3 +10,5 @@ export { toLlmsTxt } from "./outputs/llmstxt";
 export { toJsonLd, toJsonLdScript } from "./outputs/jsonld";
 export { toMCPTools } from "./outputs/mcp";
 export type { MCPToolDefinition, ToMCPToolsOptions } from "./outputs/mcp";
+export { toHeadHtml } from "./outputs/head";
+export type { ToHeadHtmlOptions } from "./outputs/head";

@@ -1,6 +1,6 @@
 // ── Re-export core (so users can import everything from @semant/vue) ──
-export { SemanticStore, toPlainText, toLlmsTxt, toJsonLd, toJsonLdScript, toMCPTools } from "@semant/core";
-export type { SemanticField, SemanticNode, SemanticPage, MCPToolDefinition, ToMCPToolsOptions } from "@semant/core";
+export { SemanticStore, toPlainText, toLlmsTxt, toJsonLd, toJsonLdScript, toMCPTools, toHeadHtml } from "@semant/core";
+export type { SemanticField, SemanticNode, SemanticPage, MCPToolDefinition, ToMCPToolsOptions, ToHeadHtmlOptions } from "@semant/core";
 
 // ── Vue composables ──
 export {
