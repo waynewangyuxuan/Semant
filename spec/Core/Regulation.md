@@ -25,7 +25,11 @@
 
 ## Adding Framework Adapters
 - New adapter = new package in `packages/`. Thin wrapper around `@semant/core`'s `SemanticStore`.
-- Follow `@semant/react` as the reference implementation.
+- Follow `@semant/react` as the reference implementation for hooks/composables.
+- Follow `@semant/vue` as the reference for non-React frameworks.
+- Vue components use `useSemantic(() => ({...}))` getter pattern so `watchEffect` tracks reactive props. All new Vue components must use this pattern.
+- Vue adapter uses `h()` render functions (not `.vue` SFCs) to keep tsup build pipeline identical.
+- Each adapter re-exports all of `@semant/core` so users import from one place.
 
 ## Testing
 - No test framework set up yet. When added: test outputs as pure functions first (easiest), then store logic, then component registration lifecycle.

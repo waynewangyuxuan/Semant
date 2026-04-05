@@ -61,11 +61,13 @@ We don't validate commands. If an agent sends an invalid value, the developer's 
 2. **AI agent builders** — get structured, operable page state without vision models
 3. **SEO/GEO practitioners** — structured data generation from component state
 
-## v0.1 Scope
+## v0.1 Scope (delivered)
 - Core protocol (`@semant/core` — store, types, output renderers)
-- React bindings (`@semant/react` — hooks, provider, reference components)
-- Reference components (Select, DatePicker, TextInput, Action, Info, List)
-- Three output formats (plaintext, llms.txt, JSON-LD)
+- React bindings (`@semant/react` — hooks, provider, 13 reference components)
+- Vue 3 bindings (`@semant/vue` — composables, provider, 13 reference components, full React parity)
+- MCP adapter (`@semant/mcp` — AI agent tool discovery from semantic state)
+- Reference components: Select, DatePicker, TextInput, Action, Info, List, Checkbox, Slider, Textarea, RadioGroup, MultiSelect
+- Four output formats (plaintext, llms.txt, JSON-LD, MCP)
 - Two delivery components (SemanticHead, SemanticBridge)
 - One example (restaurant-booking)
 
@@ -81,7 +83,6 @@ semant.dev is the project's online presence: a landing page (showcase + four int
 5. Enforce structure — developers organize nodes however they want
 
 ## Open Directions (not committed)
-- More framework adapters (Vue, Svelte, vanilla JS)
-- New output formats (OpenAPI, MCP)
-- More reference components
-- Server-side rendering support
+- More framework adapters (Svelte 5, vanilla JS)
+- New output formats (OpenAPI)
+- Server-side rendering support (SSR guards, Nuxt/Next.js compat)
