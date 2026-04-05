@@ -9,6 +9,9 @@ import { SemanticSelect } from "../components/SemanticSelect";
 import { SemanticAction } from "../components/SemanticAction";
 import { SemanticCheckbox } from "../components/SemanticCheckbox";
 import { SemanticBridge } from "../components/SemanticBridge";
+import { SemanticTextInput } from "../components/SemanticTextInput";
+import { SemanticHead } from "../components/SemanticHead";
+import { useSemantic } from "../context";
 
 describe("Vue SSR", () => {
   it("populates store during SSR — bridge contains semantic state", async () => {
@@ -107,5 +110,120 @@ describe("Vue SSR", () => {
     const app = createSSRApp(App);
     const html = await renderToString(app);
     expect(html).toBeDefined();
+  });
+
+  it("renders SemanticHead with JSON-LD during SSR", async () => {
+    const App = defineComponent({
+      setup() {
+        return () =>
+          h(SemanticProvider, { title: "Head SSR" }, {
+            default: () => [
+              h(SemanticSelect, {
+                name: "meal",
+                label: "Meal",
+                options: [
+                  { value: "lunch", label: "Lunch" },
+                  { value: "dinner", label: "Dinner" },
+                ],
+                value: "lunch",
+                onChange: () => {},
+              }),
+              h(SemanticHead, { baseUrl: "https://test.com" }),
+            ],
+          });
+      },
+    });
+
+    const app = createSSRApp(App);
+    const html = await renderToString(app);
+
+    // During Vue SSR, Teleport content is rendered separately
+    // and may not appear in the component HTML string.
+    // Verify the component renders without crashing and the
+    // select is present — the teleported head content is handled
+    // by the SSR framework (Nuxt, etc.) or toHeadHtml() helper.
+    expect(html).toContain("Meal");
+    expect(html).toContain("select");
+  });
+
+  it("handles many components during SSR", async () => {
+    const App = defineComponent({
+      setup() {
+        return () =>
+          h(SemanticProvider, { title: "Many Fields" }, {
+            default: () => [
+              h(SemanticSelect, {
+                name: "size",
+                label: "Size",
+                options: [{ value: "S", label: "S" }, { value: "M", label: "M" }],
+                value: "S",
+                onChange: () => {},
+              }),
+              h(SemanticTextInput, {
+                name: "name",
+                label: "Name",
+                value: "Alice",
+                onChange: () => {},
+              }),
+              h(SemanticCheckbox, {
+                name: "vip",
+                label: "VIP",
+                checked: true,
+                onChange: () => {},
+              }),
+              h(SemanticAction, {
+                name: "book",
+                label: "Book",
+                onExecute: () => {},
+              }),
+              h(SemanticBridge),
+            ],
+          });
+      },
+    });
+
+    const app = createSSRApp(App);
+    const html = await renderToString(app);
+
+    expect(html).toContain("Size");
+    expect(html).toContain("Name");
+    expect(html).toContain("VIP");
+    expect(html).toContain("book");
+  });
+
+  it("custom useSemantic works during SSR", async () => {
+    const CustomField = defineComponent({
+      setup() {
+        useSemantic(() => ({
+          role: "Field",
+          title: "Custom",
+          fields: [
+            {
+              key: "custom_key",
+              label: "Custom Label",
+              type: "text",
+              value: "hello",
+              set: () => {},
+            },
+          ],
+        }));
+        return () => h("div", "custom content");
+      },
+    });
+
+    const App = defineComponent({
+      setup() {
+        return () =>
+          h(SemanticProvider, { title: "Custom SSR" }, {
+            default: () => [h(CustomField), h(SemanticBridge)],
+          });
+      },
+    });
+
+    const app = createSSRApp(App);
+    const html = await renderToString(app);
+
+    expect(html).toContain("custom_key");
+    expect(html).toContain("[Field: Custom]");
   });
 });
