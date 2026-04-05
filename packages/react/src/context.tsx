@@ -9,6 +9,8 @@ import React, {
 import { SemanticStore } from "@semant/core";
 import type { SemanticField, SemanticNode, SemanticPage } from "@semant/core";
 
+const isServer = typeof window === "undefined";
+
 // ── Context ──
 
 interface SemanticContextValue {
@@ -79,8 +81,15 @@ export function useSemantic(options: UseSemanticOptions) {
     order: options.order,
   };
 
-  // Register after every render (effect, not render phase) to avoid
-  // triggering useSyncExternalStore updates in sibling components.
+  // During SSR, effects don't run. Register synchronously so
+  // SemanticHead has nodes available for JSON-LD output.
+  // Safe because there are no subscribers on the server.
+  if (isServer) {
+    ctx.store.register(node);
+  }
+
+  // On client, register after every render (effect, not render phase)
+  // to avoid triggering useSyncExternalStore updates in siblings.
   React.useEffect(() => {
     ctx.store.register(node);
   });
@@ -99,7 +108,7 @@ export function useSemantic(options: UseSemanticOptions) {
 export function useSemanticPage(): SemanticPage {
   const ctx = useContext(SemanticContext);
   if (!ctx) throw new Error("useSemanticPage must be used within <SemanticProvider>");
-  return useSyncExternalStore(ctx.store.subscribe, ctx.store.getSnapshot);
+  return useSyncExternalStore(ctx.store.subscribe, ctx.store.getSnapshot, ctx.store.getSnapshot);
 }
 
 /**
