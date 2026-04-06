@@ -3,7 +3,8 @@
     { "path": "packages/core" },
     { "path": "packages/react" },
     { "path": "packages/mcp" },
-    { "path": "packages/vue" }
+    { "path": "packages/vue" },
+    { "path": "packages/svelte" }
   ],
   "files": []
 }
