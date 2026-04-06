@@ -1,6 +1,6 @@
 {
   "name": "@semant/react",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "React bindings for the semant semantic protocol",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -23,7 +23,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@semant/core": "0.1.0"
+    "@semant/core": "0.1.1"
   },
   "peerDependencies": {
     "react": ">=18.0.0",

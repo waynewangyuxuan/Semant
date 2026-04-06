@@ -1,6 +1,6 @@
 {
   "name": "@semant/vue",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Vue 3 bindings for the semant semantic protocol",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -23,7 +23,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@semant/core": "0.1.0"
+    "@semant/core": "0.1.1"
   },
   "peerDependencies": {
     "vue": ">=3.3.0"
