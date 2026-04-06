@@ -1,8 +1,8 @@
 # semant
 
-**React components that describe themselves to AI.**
+**Components that describe themselves to AI.**
 
-Build pages that are human-beautiful and machine-operable. Every component knows how to render itself *and* how to explain itself — as plain text, llms.txt, or JSON-LD. No separate metadata layer. No reverse engineering. One source of truth.
+Build pages that are human-beautiful and machine-operable. Every component knows how to render itself *and* how to explain itself — as plain text, llms.txt, JSON-LD, or MCP tools. No separate metadata layer. No reverse engineering. One source of truth.
 
 [![npm](https://img.shields.io/npm/v/semant)](https://www.npmjs.com/package/semant) [![license](https://img.shields.io/npm/l/semant)](LICENSE) · [Live Demo](https://waynewangyuxuan.github.io/Semant/)
 
@@ -53,10 +53,22 @@ What if components described themselves?
 
 Same UI for humans. But now AI can read the page, understand the state, and operate it — with zero vision models, zero DOM parsing.
 
+## Framework Support
+
+| Framework | Package | Status |
+|-----------|---------|--------|
+| React 18+ | `@semant/react` | Full support, SSR-safe |
+| Vue 3.3+ | `@semant/vue` | Full support, SSR-safe |
+| Svelte | — | Planned |
+
+All adapters share `@semant/core` (pure JS, zero dependencies) and expose identical semantic state through the same four output channels.
+
 ## Quick Start
 
+### React
+
 ```bash
-npm install semant
+npm install @semant/react
 ```
 
 ```tsx
@@ -67,23 +79,23 @@ import {
   SemanticInfo,
   SemanticHead,
   SemanticBridge,
-} from "semant";
+} from "@semant/react";
 
 function App() {
   const [size, setSize] = useState(2);
 
   return (
-    <SemanticProvider title="Restaurant Booking" description="Book a table at Nōri">
+    <SemanticProvider title="Restaurant Booking" description="Book a table at Nori">
       <SemanticHead baseUrl="https://mysite.com" />
       <SemanticBridge />
 
       <SemanticInfo
         role="restaurant"
-        title="Nōri Omakase"
+        title="Nori Omakase"
         meta={{ cuisine: "Japanese", rating: 4.7, price: "$$$" }}
       >
-        <h1>Nōri Omakase</h1>
-        <p>Japanese · $$$</p>
+        <h1>Nori Omakase</h1>
+        <p>Japanese &middot; $$$</p>
       </SemanticInfo>
 
       <SemanticSelect
@@ -106,6 +118,46 @@ function App() {
 }
 ```
 
+### Vue
+
+```bash
+npm install @semant/vue
+```
+
+```vue
+<script setup>
+import { ref } from "vue";
+import {
+  SemanticProvider,
+  SemanticSelect,
+  SemanticAction,
+  SemanticBridge,
+} from "@semant/vue";
+
+const size = ref(2);
+const options = [1, 2, 3, 4].map((n) => ({ value: n, label: String(n) }));
+</script>
+
+<template>
+  <SemanticProvider title="Restaurant Booking">
+    <SemanticBridge />
+    <SemanticSelect
+      name="party_size"
+      label="Party Size"
+      :options="options"
+      :value="size"
+      @change="size = $event"
+    />
+    <SemanticAction
+      name="submit_booking"
+      label="Book Table"
+      :on-execute="() => alert('Booked!')"
+      :enabled="size > 0"
+    />
+  </SemanticProvider>
+</template>
+```
+
 Two extra lines (`<SemanticHead>` and `<SemanticBridge>`) and your page is now AI-readable through four channels simultaneously.
 
 ## How AI Reads Your Page
@@ -125,15 +177,14 @@ Semant exposes your page state through four channels. You don't need to pick —
 Use `toLlmsTxt()` to generate [llms.txt](https://llmstxt.org)-compatible output and serve it at `yoursite.com/llms.txt`. Perplexity, Claude, and 600+ sites already use this convention.
 
 ```ts
-// In your server route / build script
-import { toLlmsTxt } from "semant";
+import { toLlmsTxt } from "@semant/core";
 const content = toLlmsTxt(page, { baseUrl: "https://mysite.com" });
 // Serve as /llms.txt
 ```
 
 ### 3. Hidden DOM node (browser agents)
 
-`<SemanticBridge>` renders a hidden `<div id="semantic-state">` with a plain-text description of the page. Browser agents (Claude in Chrome, Operator, etc.) can read it directly from the DOM instead of parsing the entire page.
+`<SemanticBridge>` renders a hidden `<div id="__semant">` with a plain-text description of the page. Browser agents (Claude in Chrome, Operator, etc.) can read it directly from the DOM instead of parsing the entire page.
 
 ### 4. Global JS API (the most powerful path)
 
@@ -155,19 +206,18 @@ const { ok, state } = await __semant.execute("set party_size 4")
 await __semant.execute("submit_booking")
 ```
 
-`execute()` returns a Promise that resolves after React has re-rendered, so the `state` in the response is always up-to-date.
+`execute()` returns a Promise that resolves after the framework has re-rendered, so the `state` in the response is always up-to-date.
 
 ## API
 
-### Core
+### Provider & Hooks
 
-| Export | Description |
-|--------|-------------|
-| `SemanticProvider` | Wrap your app. Sets page title/description. |
-| `useSemantic(options)` | Register any component as a semantic node. The escape hatch for custom components. |
-| `useSemanticPage()` | Read the full semantic state. Re-renders on changes. |
-| `useSemanticStore()` | Get the store directly for executing commands. |
-| `field(def)` | Helper to create a typed field with TypeScript inference. |
+| Export | React | Vue | Description |
+|--------|-------|-----|-------------|
+| `SemanticProvider` | component | component | Wrap your app. Sets page title/description. |
+| `useSemantic(options)` | hook | composable | Register any component as a semantic node. |
+| `useSemanticPage()` | hook | composable | Read the full semantic state. Re-renders on changes. |
+| `useSemanticStore()` | hook | composable | Get the store directly for executing commands. |
 
 ### AI Delivery
 
@@ -184,21 +234,58 @@ await __semant.execute("submit_booking")
 | `toLlmsTxt(page, options?)` | [llms.txt](https://llmstxt.org) spec-compatible output |
 | `toJsonLd(page, options?)` | Schema.org JSON-LD structured data |
 | `toJsonLdScript(page, options?)` | JSON-LD as string for `<script>` embedding |
+| `toMCPTools(page, options?)` | MCP tool definitions for AI agent discovery |
+| `toHeadHtml(page, options?)` | Raw `<meta>` + JSON-LD HTML for SSR injection |
 
 ### Reference Components
 
 These are optional — use them directly, or use `useSemantic` to make your own.
 
-| Component | Description |
-|-----------|-------------|
-| `SemanticSelect` | Dropdown / option picker |
-| `SemanticDatePicker` | Date selector |
-| `SemanticTextInput` | Text / email / number input |
-| `SemanticAction` | Button / submit action |
-| `SemanticInfo` | Static info block (restaurant details, product specs, etc.) |
-| `SemanticList` | List of items with metadata |
+| Component | Type | Description |
+|-----------|------|-------------|
+| `SemanticSelect` | select | Dropdown / option picker |
+| `SemanticDatePicker` | date | Date selector with min/max |
+| `SemanticTextInput` | text | Text / email / number input |
+| `SemanticTextarea` | textarea | Multiline text input |
+| `SemanticCheckbox` | checkbox | Boolean toggle |
+| `SemanticSlider` | slider | Range input with min/max/step |
+| `SemanticRadioGroup` | radio | Single choice from options |
+| `SemanticMultiSelect` | multi-select | Multiple selection from options |
+| `SemanticAction` | action | Button / submit action |
+| `SemanticInfo` | (any role) | Static info block (restaurant details, product specs) |
+| `SemanticList` | List | List of items with metadata |
 
-All components support custom rendering via `children` render prop (except `SemanticAction` which uses a `render` prop, since `children` is used for button content).
+All components support custom rendering via `children` render prop (React) or scoped slots (Vue). `SemanticAction` uses a `render` prop (React) or `render` slot (Vue) since `children`/default slot is used for button content.
+
+## SSR Support
+
+Both adapters are SSR-safe and work with Next.js, Nuxt, and other SSR frameworks. During server rendering:
+
+- Nodes register synchronously so `<SemanticHead>` outputs populated JSON-LD
+- `<SemanticBridge>` renders the hidden div with semantic state (the `window.__semant` API activates on the client)
+- `toHeadHtml()` provides a pure function for programmatic head injection:
+
+```ts
+import { SemanticStore, toHeadHtml } from "@semant/core";
+
+// In your SSR handler
+const store = new SemanticStore();
+store.setPage("My App");
+// ... register nodes
+const headHtml = toHeadHtml(store.getSnapshot(), { baseUrl: "https://mysite.com" });
+// Inject into <head>
+```
+
+## MCP Integration
+
+`@semant/mcp` provides an MCP server that bridges your semantic page state to AI agents:
+
+```ts
+import { createSemantMCPServer } from "@semant/mcp";
+
+const { server, connectStdio } = createSemantMCPServer(store);
+await connectStdio(); // AI agents can now discover and call your page's fields as tools
+```
 
 ## Make Your Own Components Semantic
 
@@ -209,7 +296,7 @@ The reference components are just examples. The real power is `useSemantic`:
 </p>
 
 ```tsx
-import { useSemantic } from "semant";
+import { useSemantic } from "@semant/react"; // or "@semant/vue"
 
 function MyFancyColorPicker({ color, onChange }) {
   useSemantic({
@@ -221,7 +308,7 @@ function MyFancyColorPicker({ color, onChange }) {
         label: "Selected Color",
         type: "color-picker",  // any string works, not limited to built-in types
         value: color,
-        options: ["red", "blue", "green", "yellow"],
+        constraints: { options: ["red", "blue", "green", "yellow"] },
         set: (v) => onChange(v),
       },
     ],
@@ -238,6 +325,16 @@ Three lines of integration. Your component is now self-describing and AI-operabl
   <img src="assets/comparison-table.svg" alt="Comparison: semant vs screenshot parsing vs DOM parsing vs manual metadata" width="800" />
 </p>
 
+## Packages
+
+| Package | Description |
+|---------|-------------|
+| `@semant/core` | Store, types, output renderers — pure JS, zero dependencies |
+| `@semant/react` | React 18+ adapter — hooks, provider, 13 reference components |
+| `@semant/vue` | Vue 3.3+ adapter — composables, provider, 13 reference components |
+| `@semant/mcp` | MCP server bridge for AI agent tool discovery |
+| `semant` | Convenience package — re-exports `@semant/react` |
+
 ## Philosophy
 
 The web was built for human eyes. AI understands it through reverse engineering — parsing DOMs, taking screenshots, guessing what buttons do.
@@ -250,12 +347,12 @@ The page *is* its own API.
 
 ## Contributing
 
-This is v0.1 — the protocol is the point, not the component count. PRs welcome for:
+PRs welcome for:
 
-- New output formats (OpenAPI, MCP, etc.)
-- Framework adapters (Vue, Svelte, etc.)
+- Framework adapters (Svelte, vanilla JS)
 - More reference components
 - Better docs
+- SSR framework guides (Next.js, Nuxt)
 
 ## License
 
